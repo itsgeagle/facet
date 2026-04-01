@@ -1,22 +1,26 @@
 import { getPendingFeatures, getActiveAdminFeatures, getAllFeatures } from "@/lib/db/features";
 import { getUsers } from "@/lib/db/users";
+import { getAdminStats } from "@/lib/db/analytics";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ModerationQueue } from "@/components/admin/moderation-queue";
 import { AllFeaturesTable } from "@/components/admin/all-features-table";
 import { UserManagementTable } from "@/components/admin/user-management-table";
 import { CreateUserModal } from "@/components/admin/create-user-modal";
+import { StatsBar } from "@/components/admin/stats-bar";
 
 export default async function AdminPage() {
-  const [pendingFeatures, activeFeatures, allFeatures, users] = await Promise.all([
+  const [pendingFeatures, activeFeatures, allFeatures, users, stats] = await Promise.all([
     getPendingFeatures(),
     getActiveAdminFeatures(),
     getAllFeatures(),
     getUsers(),
+    getAdminStats(),
   ]);
 
   return (
     <div>
       <h1 className="text-2xl font-bold mb-6 text-foreground">Admin Panel</h1>
+      <StatsBar stats={stats} />
       <Tabs defaultValue="moderation">
         <TabsList className="mb-6">
           <TabsTrigger value="moderation">

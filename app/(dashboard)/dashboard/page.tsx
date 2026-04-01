@@ -5,8 +5,11 @@ import {
   getCommittedFeatures,
   getUserFeatures,
 } from "@/lib/db/features";
+import { getLeaderboard } from "@/lib/db/analytics";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FeatureList } from "@/components/feature-list";
+import { FilterableFeatureList } from "@/components/filterable-feature-list";
+import { Leaderboard } from "@/components/leaderboard";
 import {
   Table,
   TableBody,
@@ -23,10 +26,11 @@ export default async function DashboardPage() {
   const user = await getSessionUser();
   if (!user) redirect("/login");
 
-  const [openFeatures, committedFeatures, myFeatures] = await Promise.all([
+  const [openFeatures, committedFeatures, myFeatures, leaderboard] = await Promise.all([
     getOpenFeatures(),
     getCommittedFeatures(),
     getUserFeatures(user.id),
+    getLeaderboard(),
   ]);
 
   return (
@@ -44,10 +48,11 @@ export default async function DashboardPage() {
           </TabsTrigger>
           <TabsTrigger value="committed">Committed</TabsTrigger>
           <TabsTrigger value="mine">My Submissions</TabsTrigger>
+          <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
         </TabsList>
 
         <TabsContent value="open">
-          <FeatureList
+          <FilterableFeatureList
             features={openFeatures}
             emptyMessage="No features open for funding yet."
             emptyDescription="Features submitted by your team will appear here once an admin approves them and sets a Carat cost."
@@ -112,6 +117,15 @@ export default async function DashboardPage() {
               </Table>
             </div>
           )}
+        </TabsContent>
+
+        <TabsContent value="leaderboard">
+          <div className="max-w-2xl space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Top contributors ranked by total Carats spent on feature funding.
+            </p>
+            <Leaderboard entries={leaderboard} />
+          </div>
         </TabsContent>
       </Tabs>
     </div>
