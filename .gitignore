@@ -44,3 +44,7 @@ next-env.d.ts
 
 # Whitelabel config — copy whitelabel.example.ts to whitelabel.ts and edit
 /config/whitelabel.ts
+
+# Claude agent instructions (local only)
+CLAUDE.md
+AGENTS.md
