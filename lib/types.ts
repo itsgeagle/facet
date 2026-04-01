@@ -47,6 +47,7 @@ export interface FeatureRequest {
   status: FeatureStatus;
   caratCost: number | null;
   totalFunded: number;
+  rejectionReason: string | null;
   authorId: string;
   createdAt: Date;
   updatedAt: Date;

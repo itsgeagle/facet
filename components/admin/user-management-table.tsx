@@ -1,6 +1,7 @@
 import type { User } from "@/lib/types";
 import { Role } from "@/lib/types";
 import { EditAllowanceModal } from "@/components/admin/edit-allowance-modal";
+import { ResetPasswordButton } from "@/components/admin/reset-password-button";
 import {
   Table,
   TableBody,
@@ -61,11 +62,14 @@ export function UserManagementTable({ users }: UserManagementTableProps) {
                 })}
               </TableCell>
               <TableCell className="text-right">
-                <EditAllowanceModal
-                  userId={user.id}
-                  currentAllowance={user.monthlyAllowance}
-                  userEmail={user.email}
-                />
+                <div className="flex items-center justify-end gap-1">
+                  <ResetPasswordButton userId={user.id} userEmail={user.email} />
+                  <EditAllowanceModal
+                    userId={user.id}
+                    currentAllowance={user.monthlyAllowance}
+                    userEmail={user.email}
+                  />
+                </div>
               </TableCell>
             </TableRow>
           ))}

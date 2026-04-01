@@ -1,16 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import { Loader2 } from "lucide-react";
-import { toast } from "sonner";
-import { adminRejectFeature } from "@/lib/db/admin-actions";
 import { FeatureStatus } from "@/lib/types";
 import type { FeatureWithAuthor } from "@/lib/types";
 import { ProductTagBadge } from "@/components/product-tag-badge";
 import { StatusBadge } from "@/components/status-badge";
 import { ApproveModal } from "@/components/admin/approve-modal";
+import { RejectModal } from "@/components/admin/reject-modal";
 import { StatusUpdateDropdown } from "@/components/admin/status-update-dropdown";
-import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -23,34 +19,6 @@ import {
 interface ModerationQueueProps {
   pendingFeatures: FeatureWithAuthor[];
   activeFeatures: FeatureWithAuthor[];
-}
-
-function RejectButton({ featureId }: { featureId: string }) {
-  const [loading, setLoading] = useState(false);
-
-  async function handleReject() {
-    if (!confirm("Reject this feature request?")) return;
-    setLoading(true);
-    const result = await adminRejectFeature({ featureId });
-    if (!result.success) {
-      toast.error(result.error);
-    } else {
-      toast.success("Feature rejected");
-    }
-    setLoading(false);
-  }
-
-  return (
-    <Button
-      variant="outline"
-      size="sm"
-      onClick={handleReject}
-      disabled={loading}
-      className="text-red-400 border-red-400/30 hover:bg-red-400/10"
-    >
-      {loading ? <Loader2 className="h-3 w-3 animate-spin" /> : "Reject"}
-    </Button>
-  );
 }
 
 export function ModerationQueue({ pendingFeatures, activeFeatures }: ModerationQueueProps) {
@@ -99,7 +67,7 @@ export function ModerationQueue({ pendingFeatures, activeFeatures }: ModerationQ
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
                         <ApproveModal featureId={f.id} featureTitle={f.title} />
-                        <RejectButton featureId={f.id} />
+                        <RejectModal featureId={f.id} featureTitle={f.title} />
                       </div>
                     </TableCell>
                   </TableRow>

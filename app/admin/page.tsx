@@ -1,14 +1,16 @@
-import { getPendingFeatures, getActiveAdminFeatures } from "@/lib/db/features";
+import { getPendingFeatures, getActiveAdminFeatures, getAllFeatures } from "@/lib/db/features";
 import { getUsers } from "@/lib/db/users";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ModerationQueue } from "@/components/admin/moderation-queue";
+import { AllFeaturesTable } from "@/components/admin/all-features-table";
 import { UserManagementTable } from "@/components/admin/user-management-table";
 import { CreateUserModal } from "@/components/admin/create-user-modal";
 
 export default async function AdminPage() {
-  const [pendingFeatures, activeFeatures, users] = await Promise.all([
+  const [pendingFeatures, activeFeatures, allFeatures, users] = await Promise.all([
     getPendingFeatures(),
     getActiveAdminFeatures(),
+    getAllFeatures(),
     getUsers(),
   ]);
 
@@ -25,6 +27,7 @@ export default async function AdminPage() {
               </span>
             )}
           </TabsTrigger>
+          <TabsTrigger value="features">All Features</TabsTrigger>
           <TabsTrigger value="users">User Management</TabsTrigger>
         </TabsList>
 
@@ -33,6 +36,15 @@ export default async function AdminPage() {
             pendingFeatures={pendingFeatures}
             activeFeatures={activeFeatures}
           />
+        </TabsContent>
+
+        <TabsContent value="features">
+          <div className="space-y-4">
+            <h2 className="text-base font-semibold text-foreground">
+              All Features ({allFeatures.length})
+            </h2>
+            <AllFeaturesTable features={allFeatures} />
+          </div>
         </TabsContent>
 
         <TabsContent value="users">

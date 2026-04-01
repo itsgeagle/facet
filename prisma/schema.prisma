@@ -51,8 +51,9 @@ model FeatureRequest {
   productTag    ProductTag
   status        FeatureStatus @default(PENDING)
   caratCost     Int?
-  totalFunded   Int           @default(0)
-  authorId      String
+  totalFunded      Int           @default(0)
+  rejectionReason  String?
+  authorId         String
   author        User          @relation(fields: [authorId], references: [id])
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt

@@ -7,7 +7,7 @@ import { StatusBadge } from "@/components/status-badge";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
 import { ContributeModal } from "@/components/contribute-modal";
 import { ContributorList } from "@/components/contributor-list";
-import { Gem } from "lucide-react";
+import { Gem, XCircle } from "lucide-react";
 
 interface FeatureDetailPageProps {
   params: Promise<{ id: string }>;
@@ -60,6 +60,21 @@ export default async function FeatureDetailPage({ params }: FeatureDetailPagePro
           })}
         </p>
       </div>
+
+      {/* Rejection notice */}
+      {feature.status === FeatureStatus.REJECTED && (
+        <div className="rounded-lg border border-red-400/30 bg-red-500/10 p-4 flex gap-3">
+          <XCircle className="h-5 w-5 text-red-400 mt-0.5 shrink-0" />
+          <div className="space-y-1">
+            <p className="text-sm font-medium text-red-400">Feature rejected</p>
+            {feature.rejectionReason ? (
+              <p className="text-sm text-muted-foreground">{feature.rejectionReason}</p>
+            ) : (
+              <p className="text-sm text-muted-foreground italic">No reason provided.</p>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Description */}
       <div className="rounded-lg border border-border bg-card p-6">

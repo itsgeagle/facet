@@ -63,10 +63,14 @@ export async function adminRejectFeature(data: unknown): Promise<ActionResult> {
 
   await prisma.featureRequest.update({
     where: { id: parsed.data.featureId },
-    data: { status: FeatureStatus.REJECTED },
+    data: {
+      status: FeatureStatus.REJECTED,
+      rejectionReason: parsed.data.reason ?? null,
+    },
   });
 
   revalidatePath("/admin");
+  revalidatePath("/dashboard");
   return { success: true };
 }
 

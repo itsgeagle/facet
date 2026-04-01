@@ -61,6 +61,13 @@ export async function getPendingFeatures(): Promise<FeatureWithAuthor[]> {
   });
 }
 
+export async function getAllFeatures(): Promise<FeatureWithAuthor[]> {
+  return prisma.featureRequest.findMany({
+    include: { author: { select: authorSelect } },
+    orderBy: { createdAt: "desc" },
+  });
+}
+
 export async function getActiveAdminFeatures(): Promise<FeatureWithAuthor[]> {
   return prisma.featureRequest.findMany({
     where: {

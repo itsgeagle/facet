@@ -62,6 +62,26 @@ export async function createUser(data: unknown): Promise<ActionResult> {
   return { success: true };
 }
 
+export async function resetUserPassword(userId: string): Promise<ActionResult> {
+  const admin = await requireAdmin();
+  if (!admin) return { success: false, error: "Unauthorized" };
+
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) return { success: false, error: "User not found" };
+
+  const supabaseAdmin = createSupabaseAdminClient();
+  const { error } = await supabaseAdmin.auth.admin.generateLink({
+    type: "recovery",
+    email: user.email,
+  });
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  return { success: true };
+}
+
 export async function updateUserAllowance(data: unknown): Promise<ActionResult> {
   const admin = await requireAdmin();
   if (!admin) return { success: false, error: "Unauthorized" };

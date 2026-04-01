@@ -8,6 +8,7 @@ export const approveFeatureSchema = z.object({
 
 export const rejectFeatureSchema = z.object({
   featureId: z.string().min(1, "Feature ID is required"),
+  reason: z.string().max(500, "Reason must be 500 characters or less").optional(),
 });
 
 export const updateFeatureStatusSchema = z.object({
