@@ -1,22 +1,13 @@
-import { ProductTag, FeatureStatus } from "@/lib/types";
+import { FeatureStatus } from "@/lib/types";
+import { productTagsConfig } from "@/lib/brand";
 
-export const PRODUCT_TAG_COLORS: Record<ProductTag, string> = {
-  [ProductTag.WHITE_DIAMONDS]: "bg-slate-600 text-slate-100",
-  [ProductTag.JEWELRY]: "bg-purple-600 text-purple-100",
-  [ProductTag.RFID]: "bg-blue-600 text-blue-100",
-  [ProductTag.MD_MOBILE]: "bg-orange-600 text-orange-100",
-  [ProductTag.MD_COMMERCE]: "bg-pink-600 text-pink-100",
-  [ProductTag.MD_CONNECT]: "bg-cyan-600 text-cyan-100",
-};
+export const PRODUCT_TAG_COLORS: Record<string, string> = Object.fromEntries(
+  Object.entries(productTagsConfig).map(([key, { color }]) => [key, color])
+);
 
-export const PRODUCT_TAG_LABELS: Record<ProductTag, string> = {
-  [ProductTag.WHITE_DIAMONDS]: "White Diamonds",
-  [ProductTag.JEWELRY]: "Jewelry",
-  [ProductTag.RFID]: "RFID",
-  [ProductTag.MD_MOBILE]: "MD Mobile",
-  [ProductTag.MD_COMMERCE]: "MD Commerce",
-  [ProductTag.MD_CONNECT]: "MD Connect",
-};
+export const PRODUCT_TAG_LABELS: Record<string, string> = Object.fromEntries(
+  Object.entries(productTagsConfig).map(([key, { label }]) => [key, label])
+);
 
 export const STATUS_COLORS: Record<FeatureStatus, string> = {
   [FeatureStatus.PENDING]: "bg-yellow-600 text-yellow-100",

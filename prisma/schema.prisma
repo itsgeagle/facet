@@ -13,15 +13,6 @@ enum Role {
   USER
 }
 
-enum ProductTag {
-  WHITE_DIAMONDS
-  JEWELRY
-  RFID
-  MD_MOBILE
-  MD_COMMERCE
-  MD_CONNECT
-}
-
 enum FeatureStatus {
   PENDING
   OPEN
@@ -48,7 +39,7 @@ model FeatureRequest {
   id            String        @id @default(cuid())
   title         String
   description   String        @db.Text
-  productTag    ProductTag
+  productTag    String
   status        FeatureStatus @default(PENDING)
   caratCost     Int?
   totalFunded      Int           @default(0)

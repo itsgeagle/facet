@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { currency } from "@/lib/brand";
 import { ProductTagBadge } from "@/components/product-tag-badge";
 import { StatusBadge } from "@/components/status-badge";
 import { FeatureStatus } from "@/lib/types";
@@ -46,7 +47,7 @@ export function FeatureCard({ feature }: FeatureCardProps) {
                 />
               </div>
               <p className="text-xs text-muted-foreground">
-                {feature.totalFunded} / {feature.caratCost} Carats
+                {feature.totalFunded} / {feature.caratCost} {currency.plural}
               </p>
             </div>
           )}

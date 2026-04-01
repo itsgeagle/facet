@@ -41,3 +41,6 @@ yarn-error.log*
 next-env.d.ts
 
 /app/generated/prisma
+
+# Whitelabel config — copy whitelabel.example.ts to whitelabel.ts and edit
+/config/whitelabel.ts

@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FeatureList } from "@/components/feature-list";
 import { FilterableFeatureList } from "@/components/filterable-feature-list";
 import { Leaderboard } from "@/components/leaderboard";
+import { currency } from "@/lib/brand";
 import {
   Table,
   TableBody,
@@ -55,7 +56,7 @@ export default async function DashboardPage() {
           <FilterableFeatureList
             features={openFeatures}
             emptyMessage="No features open for funding yet."
-            emptyDescription="Features submitted by your team will appear here once an admin approves them and sets a Carat cost."
+            emptyDescription={`Features submitted by your team will appear here once an admin approves them and sets a ${currency.singular} cost.`}
             showSubmitCta
           />
         </TabsContent>
@@ -73,7 +74,7 @@ export default async function DashboardPage() {
             <FeatureList
               features={[]}
               emptyMessage="You haven't submitted any features yet."
-              emptyDescription="Submit a feature request and an admin will review it and set a Carat cost."
+              emptyDescription={`Submit a feature request and an admin will review it and set a ${currency.singular} cost.`}
               showSubmitCta
             />
           ) : (
@@ -122,7 +123,7 @@ export default async function DashboardPage() {
         <TabsContent value="leaderboard">
           <div className="max-w-2xl space-y-3">
             <p className="text-sm text-muted-foreground">
-              Top contributors ranked by total Carats spent on feature funding.
+              {`Top contributors ranked by total ${currency.plural} spent on feature funding.`}
             </p>
             <Leaderboard entries={leaderboard} />
           </div>

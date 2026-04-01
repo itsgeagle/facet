@@ -1,4 +1,5 @@
-import { Gem } from "lucide-react";
+import { BrandIcon } from "@/components/brand-icon";
+import { currency } from "@/lib/brand";
 
 interface CaratBalanceDisplayProps {
   currentBalance: number;
@@ -11,10 +12,10 @@ export function CaratBalanceDisplay({
 }: CaratBalanceDisplayProps) {
   return (
     <div className="flex items-center gap-1.5 text-sm font-medium text-foreground">
-      <Gem className="h-4 w-4 text-primary" />
+      <BrandIcon className="h-4 w-4 text-primary" />
       <span>
         <span className="text-primary font-bold">{currentBalance}</span>
-        <span className="text-muted-foreground">/{monthlyAllowance} Carats</span>
+        <span className="text-muted-foreground">/{monthlyAllowance} {currency.plural}</span>
       </span>
     </div>
   );

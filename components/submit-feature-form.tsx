@@ -6,8 +6,7 @@ import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { submitFeature } from "@/lib/db/feature-actions";
-import { ProductTag } from "@/lib/types";
-import { PRODUCT_TAG_LABELS } from "@/lib/constants";
+import { productTagsConfig } from "@/lib/brand";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,7 +26,7 @@ const TiptapEditor = dynamic(
 export function SubmitFeatureForm() {
   const router = useRouter();
   const [title, setTitle] = useState("");
-  const [productTag, setProductTag] = useState<ProductTag | "">("");
+  const [productTag, setProductTag] = useState("");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -74,17 +73,14 @@ export function SubmitFeatureForm() {
 
       <div className="space-y-2">
         <Label htmlFor="productTag">Product</Label>
-        <Select
-          value={productTag}
-          onValueChange={(v) => setProductTag(v as ProductTag)}
-        >
+        <Select value={productTag} onValueChange={(v) => setProductTag(v ?? "")}>
           <SelectTrigger id="productTag">
             <SelectValue placeholder="Select a product..." />
           </SelectTrigger>
           <SelectContent>
-            {Object.values(ProductTag).map((tag) => (
-              <SelectItem key={tag} value={tag}>
-                {PRODUCT_TAG_LABELS[tag]}
+            {Object.entries(productTagsConfig).map(([value, { label }]) => (
+              <SelectItem key={value} value={value}>
+                {label}
               </SelectItem>
             ))}
           </SelectContent>

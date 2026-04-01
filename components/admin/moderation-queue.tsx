@@ -1,6 +1,7 @@
 "use client";
 
 import { FeatureStatus } from "@/lib/types";
+import { currency } from "@/lib/brand";
 import type { FeatureWithAuthor } from "@/lib/types";
 import { ProductTagBadge } from "@/components/product-tag-badge";
 import { StatusBadge } from "@/components/status-badge";
@@ -111,7 +112,7 @@ export function ModerationQueue({ pendingFeatures, activeFeatures }: ModerationQ
                     </TableCell>
                     <TableCell className="text-muted-foreground text-sm">
                       {f.caratCost != null
-                        ? `${f.totalFunded} / ${f.caratCost} Carats`
+                        ? `${f.totalFunded} / ${f.caratCost} ${currency.plural}`
                         : "—"}
                     </TableCell>
                     <TableCell className="text-right">

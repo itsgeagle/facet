@@ -7,7 +7,9 @@ import { StatusBadge } from "@/components/status-badge";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
 import { ContributeModal } from "@/components/contribute-modal";
 import { ContributorList } from "@/components/contributor-list";
-import { Gem, XCircle } from "lucide-react";
+import { XCircle } from "lucide-react";
+import { BrandIcon } from "@/components/brand-icon";
+import { currency, unitLabel } from "@/lib/brand";
 
 interface FeatureDetailPageProps {
   params: Promise<{ id: string }>;
@@ -86,12 +88,12 @@ export default async function FeatureDetailPage({ params }: FeatureDetailPagePro
         <div className="rounded-lg border border-border bg-card p-6 space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="font-semibold text-foreground flex items-center gap-2">
-              <Gem className="h-4 w-4 text-primary" />
+              <BrandIcon className="h-4 w-4 text-primary" />
               Funding Progress
             </h2>
             <span className="text-sm font-medium text-foreground">
               {feature.totalFunded}{" "}
-              <span className="text-muted-foreground">/ {feature.caratCost} Carats</span>
+              <span className="text-muted-foreground">/ {feature.caratCost} {currency.plural}</span>
             </span>
           </div>
           <div className="h-3 w-full rounded-full bg-muted overflow-hidden">
@@ -102,7 +104,7 @@ export default async function FeatureDetailPage({ params }: FeatureDetailPagePro
           </div>
           <p className="text-xs text-muted-foreground">
             {fundingPercent}% funded
-            {remainingNeeded > 0 && ` — ${remainingNeeded} Carats needed`}
+            {remainingNeeded > 0 && ` — ${remainingNeeded} ${unitLabel(remainingNeeded)} needed`}
           </p>
 
           {canContribute && (

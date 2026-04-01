@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { FeatureWithAuthor } from "@/lib/types";
+import { currency } from "@/lib/brand";
 import { ProductTagBadge } from "@/components/product-tag-badge";
 import { StatusBadge } from "@/components/status-badge";
 import {
@@ -57,7 +58,7 @@ export function AllFeaturesTable({ features }: AllFeaturesTableProps) {
               </TableCell>
               <TableCell className="text-muted-foreground text-sm">
                 {f.caratCost != null
-                  ? `${f.totalFunded} / ${f.caratCost} Carats`
+                  ? `${f.totalFunded} / ${f.caratCost} ${currency.plural}`
                   : "—"}
               </TableCell>
               <TableCell className="text-muted-foreground text-sm">

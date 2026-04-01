@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Gem, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
+import { BrandIcon } from "@/components/brand-icon";
 import { FeatureCard } from "@/components/feature-card";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -24,7 +25,7 @@ export function FeatureList({
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-4 text-center">
         <div className="flex items-center justify-center w-14 h-14 rounded-full bg-muted">
-          <Gem className="h-7 w-7 text-muted-foreground" />
+          <BrandIcon className="h-7 w-7 text-muted-foreground" />
         </div>
         <div className="space-y-1">
           <p className="font-medium text-foreground">{emptyMessage}</p>

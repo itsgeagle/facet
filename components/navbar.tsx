@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { Gem, Plus, Shield } from "lucide-react";
+import { Plus, Shield } from "lucide-react";
+import { BrandIcon } from "@/components/brand-icon";
+import { brand } from "@/lib/brand";
 import { CaratBalanceDisplay } from "@/components/carat-balance-display";
 import { UserNav } from "@/components/user-nav";
 import { buttonVariants } from "@/components/ui/button";
@@ -21,8 +23,8 @@ export function Navbar({ user }: NavbarProps) {
           href="/dashboard"
           className="flex items-center gap-2 font-bold text-foreground hover:text-primary transition-colors"
         >
-          <Gem className="h-5 w-5 text-primary" />
-          <span>Facet</span>
+          <BrandIcon className="h-5 w-5 text-primary" />
+          <span>{brand.name}</span>
         </Link>
 
         <div className="flex items-center gap-3">

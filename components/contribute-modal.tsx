@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, Gem } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { BrandIcon } from "@/components/brand-icon";
+import { unitLabel, currency } from "@/lib/brand";
 import { toast } from "sonner";
 import { contributeCarats } from "@/lib/db/contribution-actions";
 import { Button } from "@/components/ui/button";
@@ -59,7 +61,7 @@ export function ContributeModal({
       return;
     }
 
-    toast.success(`Contributed ${amount} ${amount === 1 ? "Carat" : "Carats"} successfully!`);
+    toast.success(`Contributed ${amount} ${unitLabel(amount)} successfully!`);
     setOpen(false);
     router.refresh();
     setLoading(false);
@@ -72,14 +74,14 @@ export function ContributeModal({
       <DialogTrigger
         render={
           <Button className="flex items-center gap-2">
-            <Gem className="h-4 w-4" />
-            Contribute Carats
+            <BrandIcon className="h-4 w-4" />
+            {`Contribute ${currency.plural}`}
           </Button>
         }
       />
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Contribute Carats</DialogTitle>
+          <DialogTitle>{`Contribute ${currency.plural}`}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-5 py-2">
@@ -89,7 +91,7 @@ export function ContributeModal({
             <div className="flex items-center justify-between">
               <Label>Amount</Label>
               <span className="text-xs text-muted-foreground">
-                Balance after: {userBalance - amount} Carats
+                Balance after: {userBalance - amount} {currency.plural}
               </span>
             </div>
 
@@ -110,7 +112,7 @@ export function ContributeModal({
                 className="w-24"
               />
               <span className="text-sm text-muted-foreground">
-                of {maxAmount} max Carats
+                of {maxAmount} max {currency.plural}
               </span>
             </div>
           </div>
@@ -125,7 +127,7 @@ export function ContributeModal({
                 Contributing…
               </>
             ) : (
-              `Contribute ${amount} ${amount === 1 ? "Carat" : "Carats"}`
+              `Contribute ${amount} ${unitLabel(amount)}`
             )}
           </Button>
         </DialogFooter>

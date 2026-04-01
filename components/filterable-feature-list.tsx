@@ -3,11 +3,11 @@
 import { useState } from "react";
 import { FeatureList } from "@/components/feature-list";
 import { ProductTagBadge } from "@/components/product-tag-badge";
-import { ProductTag } from "@/lib/types";
+import { productTagsConfig } from "@/lib/brand";
 import type { FeatureWithAuthor } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-const ALL_TAGS = Object.values(ProductTag);
+const ALL_TAGS = Object.keys(productTagsConfig);
 
 interface FilterableFeatureListProps {
   features: FeatureWithAuthor[];
@@ -22,7 +22,7 @@ export function FilterableFeatureList({
   emptyDescription,
   showSubmitCta,
 }: FilterableFeatureListProps) {
-  const [activeTag, setActiveTag] = useState<ProductTag | null>(null);
+  const [activeTag, setActiveTag] = useState<string | null>(null);
 
   const usedTags = Array.from(new Set(features.map((f) => f.productTag)));
   const filtered =

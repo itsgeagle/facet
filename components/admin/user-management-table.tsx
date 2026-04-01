@@ -1,5 +1,6 @@
 import type { User } from "@/lib/types";
 import { Role } from "@/lib/types";
+import { currency } from "@/lib/brand";
 import { EditAllowanceModal } from "@/components/admin/edit-allowance-modal";
 import { ResetPasswordButton } from "@/components/admin/reset-password-button";
 import {
@@ -49,10 +50,10 @@ export function UserManagementTable({ users }: UserManagementTableProps) {
                 </span>
               </TableCell>
               <TableCell className="text-muted-foreground text-sm">
-                {user.monthlyAllowance} Carats
+                {user.monthlyAllowance} {currency.plural}
               </TableCell>
               <TableCell className="text-muted-foreground text-sm">
-                {user.currentBalance} Carats
+                {user.currentBalance} {currency.plural}
               </TableCell>
               <TableCell className="text-muted-foreground text-sm">
                 {new Date(user.createdAt).toLocaleDateString("en-US", {

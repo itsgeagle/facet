@@ -1,7 +1,8 @@
-import { Gem, Users, LayoutList, TrendingUp } from "lucide-react";
+import { Users, LayoutList, TrendingUp } from "lucide-react";
 import type { AdminStats } from "@/lib/db/analytics";
 import { FeatureStatus } from "@/lib/types";
 import { STATUS_LABELS } from "@/lib/constants";
+import { BrandLucideIcon, currency } from "@/lib/brand";
 
 interface StatsBarProps {
   stats: AdminStats;
@@ -55,15 +56,15 @@ export function StatsBar({ stats }: StatsBarProps) {
           value={stats.totalUsers}
         />
         <StatCard
-          icon={Gem}
-          label="Carats in Circulation"
+          icon={BrandLucideIcon}
+          label={`${currency.plural} in Circulation`}
           value={stats.totalCaratsInCirculation}
           sub="across all users"
         />
         <StatCard
           icon={TrendingUp}
           label="Funded This Month"
-          value={`${stats.totalCaratsFundedThisMonth} Carats`}
+          value={`${stats.totalCaratsFundedThisMonth} ${currency.plural}`}
         />
       </div>
 

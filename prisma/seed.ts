@@ -4,6 +4,19 @@ import { config } from "dotenv";
 config({ path: ".env" });
 config({ path: ".env.local", override: true });
 
+// Use relative import — @/ alias not resolved outside Next.js compiler
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const whitelabelConfig = require("../config/whitelabel").default as {
+  seed: {
+    adminEmail: string;
+    adminPassword: string;
+    userEmail: string;
+    userPassword: string;
+    userCompany: string;
+  };
+};
+const { seed } = whitelabelConfig;
+
 const prisma = new PrismaClient();
 
 const supabaseAdmin = createClient(
@@ -40,15 +53,15 @@ async function main() {
   console.log("🌱 Seeding database...");
 
   // --- Auth users ---
-  await upsertAuthUser("admin@managediamonds.com", "AdminFacet2025!", "ADMIN");
-  await upsertAuthUser("user@managediamonds.com", "UserFacet2025!", "USER");
+  await upsertAuthUser(seed.adminEmail, seed.adminPassword, "ADMIN");
+  await upsertAuthUser(seed.userEmail, seed.userPassword, "USER");
 
   // --- DB users ---
   const adminUser = await prisma.user.upsert({
-    where: { email: "admin@managediamonds.com" },
+    where: { email: seed.adminEmail },
     update: {},
     create: {
-      email: "admin@managediamonds.com",
+      email: seed.adminEmail,
       role: "ADMIN",
       monthlyAllowance: 50,
       currentBalance: 50,
@@ -56,12 +69,12 @@ async function main() {
   });
 
   const testUser = await prisma.user.upsert({
-    where: { email: "user@managediamonds.com" },
+    where: { email: seed.userEmail },
     update: {},
     create: {
-      email: "user@managediamonds.com",
+      email: seed.userEmail,
       role: "USER",
-      companyName: "Diamond Co.",
+      companyName: seed.userCompany,
       monthlyAllowance: 10,
       currentBalance: 10,
     },

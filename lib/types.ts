@@ -7,15 +7,8 @@ export const Role = {
 } as const;
 export type Role = (typeof Role)[keyof typeof Role];
 
-export const ProductTag = {
-  WHITE_DIAMONDS: "WHITE_DIAMONDS",
-  JEWELRY: "JEWELRY",
-  RFID: "RFID",
-  MD_MOBILE: "MD_MOBILE",
-  MD_COMMERCE: "MD_COMMERCE",
-  MD_CONNECT: "MD_CONNECT",
-} as const;
-export type ProductTag = (typeof ProductTag)[keyof typeof ProductTag];
+/** Product tag values are defined in config/whitelabel.ts and stored as plain strings. */
+export type ProductTag = string;
 
 export const FeatureStatus = {
   PENDING: "PENDING",

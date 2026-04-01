@@ -1,4 +1,5 @@
-import { Gem, Trophy } from "lucide-react";
+import { Trophy } from "lucide-react";
+import { BrandIcon } from "@/components/brand-icon";
 import type { LeaderboardEntry } from "@/lib/db/analytics";
 
 interface LeaderboardProps {
@@ -50,7 +51,7 @@ export function Leaderboard({ entries }: LeaderboardProps) {
               )}
             </div>
             <div className="flex items-center gap-1.5 text-sm font-semibold text-primary shrink-0">
-              <Gem className="h-3.5 w-3.5" />
+              <BrandIcon className="h-3.5 w-3.5" />
               {entry.totalCarats}
               <span className="text-xs font-normal text-muted-foreground">
                 ({entry.contributionCount} contribution{entry.contributionCount !== 1 ? "s" : ""})

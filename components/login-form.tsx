@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Gem, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { BrandIcon } from "@/components/brand-icon";
+import { brand, company } from "@/lib/brand";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,12 +43,12 @@ export function LoginForm() {
     <Card className="w-full max-w-md border-border bg-card shadow-2xl">
       <CardHeader className="pb-2 text-center">
         <div className="flex items-center justify-center gap-2 mb-2">
-          <Gem className="h-7 w-7 text-primary" />
+          <BrandIcon className="h-7 w-7 text-primary" />
           <span className="text-2xl font-bold tracking-tight text-foreground">
-            Facet
+            {brand.name}
           </span>
         </div>
-        <p className="text-sm text-muted-foreground">Manage Diamonds</p>
+        <p className="text-sm text-muted-foreground">{brand.tagline}</p>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -55,7 +57,7 @@ export function LoginForm() {
             <Input
               id="email"
               type="email"
-              placeholder="you@managediamonds.com"
+              placeholder={`you@${company.domain}`}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required

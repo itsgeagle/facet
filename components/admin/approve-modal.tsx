@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { adminApproveFeature } from "@/lib/db/admin-actions";
+import { currency } from "@/lib/brand";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,7 +31,7 @@ export function ApproveModal({ featureId, featureTitle }: ApproveModalProps) {
   async function handleApprove() {
     const cost = parseInt(caratCost, 10);
     if (isNaN(cost) || cost < 1) {
-      toast.error("Please enter a valid carat cost (minimum 1)");
+      toast.error(`Please enter a valid ${currency.singular.toLowerCase()} cost (minimum 1)`);
       return;
     }
 
@@ -65,7 +66,7 @@ export function ApproveModal({ featureId, featureTitle }: ApproveModalProps) {
         <div className="space-y-4 py-2">
           <p className="text-sm text-muted-foreground line-clamp-2">{featureTitle}</p>
           <div className="space-y-2">
-            <Label htmlFor="caratCost">Carat Cost</Label>
+            <Label htmlFor="caratCost">{currency.singular} Cost</Label>
             <Input
               id="caratCost"
               type="number"
@@ -75,7 +76,7 @@ export function ApproveModal({ featureId, featureTitle }: ApproveModalProps) {
               onChange={(e) => setCaratCost(e.target.value)}
             />
             <p className="text-xs text-muted-foreground">
-              How many Carats must be crowdfunded to commit this feature?
+              {`How many ${currency.plural} must be crowdfunded to commit this feature?`}
             </p>
           </div>
         </div>

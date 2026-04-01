@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Loader2, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 import { createUser } from "@/lib/db/user-actions";
+import { currency, company } from "@/lib/brand";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -73,7 +74,7 @@ export function CreateUserModal() {
               id="email"
               name="email"
               type="email"
-              placeholder="user@managediamonds.com"
+              placeholder={`user@${company.domain}`}
               value={form.email}
               onChange={handleChange}
             />
@@ -100,7 +101,7 @@ export function CreateUserModal() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="monthlyAllowance">Monthly Allowance (Carats)</Label>
+            <Label htmlFor="monthlyAllowance">{`Monthly Allowance (${currency.plural})`}</Label>
             <Input
               id="monthlyAllowance"
               name="monthlyAllowance"

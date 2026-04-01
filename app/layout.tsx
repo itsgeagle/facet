@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
+import { meta } from "@/lib/brand";
 import "./globals.css";
 
 const inter = Inter({
@@ -9,8 +10,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Facet — Feature Governance",
-  description: "Crowdfund feature development with Carats",
+  title: meta.title,
+  description: meta.description,
 };
 
 export default function RootLayout({

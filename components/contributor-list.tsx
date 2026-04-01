@@ -1,3 +1,4 @@
+import { unitLabel } from "@/lib/brand";
 import type { Contribution, User } from "@/lib/types";
 
 type ContributionWithUser = Contribution & {
@@ -26,7 +27,7 @@ export function ContributorList({ contributions }: ContributorListProps) {
             {c.user.companyName ?? c.user.email}
           </span>
           <span className="text-sm font-semibold text-primary">
-            {c.amount} {c.amount === 1 ? "Carat" : "Carats"}
+            {c.amount} {unitLabel(c.amount)}
           </span>
         </div>
       ))}
