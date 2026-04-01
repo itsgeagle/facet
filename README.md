@@ -2,8 +2,6 @@
 
 **Feature governance for product teams.** Users spend a monthly allowance of funding units to crowdfund feature development — the team votes with their budget, not just their opinions. When a feature reaches its funding goal it becomes committed; admins then move it through development and ship it.
 
-Fully white-labelable: swap the app name, currency name, brand icon, and product taxonomy by editing a single config file.
-
 ---
 
 ## How it works
@@ -11,22 +9,21 @@ Fully white-labelable: swap the app name, currency name, brand icon, and product
 | Role | What they can do |
 |------|-----------------|
 | **User** | Submit feature requests, browse open features, contribute funding units to features they want built |
-| **Admin** | Approve or reject pending submissions (with optional rejection reason), set funding goals, advance features through the pipeline, manage users and allowances |
+| **Admin** | Approve or reject pending submissions, set funding goals, advance features through the pipeline, manage users and allowances |
 
 **Feature lifecycle:** `Pending` → `Open` → `Committed` → `In Progress` → `Shipped` (or `Rejected` from Pending)
 
-A feature automatically moves from Open to Committed the moment crowdfunding reaches its goal — no admin action needed.
+A feature automatically moves from Open to Committed the moment crowdfunding reaches its goal.
 
 ---
 
 ## Tech stack
 
-- **Framework** — Next.js 16 (App Router, TypeScript strict)
-- **UI** — Tailwind CSS v4, shadcn/ui (base-nova), Lucide icons
+- **Framework** — Next.js 16 (App Router, TypeScript)
+- **UI** — Tailwind CSS v4, shadcn/ui, Lucide icons
 - **Database** — PostgreSQL via Prisma ORM
-- **Auth** — Supabase Auth (email/password, invite-only — no public sign-up)
+- **Auth** — Supabase Auth (email/password, invite-only)
 - **Rich text** — Tiptap editor
-- **Validation** — Zod v4
 
 ---
 
@@ -34,7 +31,6 @@ A feature automatically moves from Open to Committed the moment crowdfunding rea
 
 - Node.js 18+
 - A [Supabase](https://supabase.com) project (free tier works)
-- A PostgreSQL database (Supabase provides one)
 
 ---
 
@@ -65,7 +61,7 @@ DATABASE_URL=postgresql://postgres:your-password@db.your-project.supabase.co:543
 CRON_SECRET=a-long-random-secret-string
 ```
 
-> **Tip:** If your database password contains `@`, URL-encode it as `%40`. Other special characters should be encoded similarly.
+> If your database password contains special characters like `@`, URL-encode them (`@` → `%40`) before putting them in `DATABASE_URL`.
 
 ### 3. Configure your whitelabel
 
@@ -73,7 +69,7 @@ CRON_SECRET=a-long-random-secret-string
 cp config/whitelabel.example.ts config/whitelabel.ts
 ```
 
-Edit `config/whitelabel.ts` to set your app name, currency unit name, brand icon, and product tags. See the [Whitelabeling](#whitelabeling) section for the full field reference.
+Edit `config/whitelabel.ts` to set your app name, currency unit, brand icon, and product tags. See [Whitelabeling](#whitelabeling) for the full field reference.
 
 ### 4. Push the database schema
 
@@ -87,7 +83,7 @@ npx prisma db push
 npx prisma db seed
 ```
 
-This creates the admin and test user accounts defined in your whitelabel config's `seed` fields, plus six sample feature requests.
+This creates the admin and test user accounts defined in your whitelabel config's `seed` fields, plus sample feature requests.
 
 ### 6. Run the dev server
 
@@ -95,68 +91,46 @@ This creates the admin and test user accounts defined in your whitelabel config'
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). You'll be redirected to the login page — sign in with the admin credentials from your whitelabel config.
+Open [http://localhost:3000](http://localhost:3000) and sign in with the admin credentials from your whitelabel config.
 
 ---
 
-## Whitelabeling
+## Deploying
 
-All brand-specific values live in a single file: `config/whitelabel.ts`. Copy the example, edit it, and the entire app updates on the next build or dev restart. The file is gitignored so private deployments don't accidentally commit credentials or brand config.
+### Build
 
 ```bash
-cp config/whitelabel.example.ts config/whitelabel.ts
+npm run build
+npm run start
 ```
 
-### Config reference
+Or deploy to any platform that supports Node.js — Vercel, Railway, Fly.io, etc. Set the same environment variables from `.env.local` in your platform's dashboard.
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `brand.name` | `string` | App name in the navbar, login page, and browser tab |
-| `brand.tagline` | `string` | Short tagline shown beneath the app name on login |
-| `brand.icon` | `LucideIcon` | Logo icon — import any icon from `lucide-react` |
-| `meta.title` | `string` | Full browser tab title |
-| `meta.description` | `string` | Meta description for search engines and link previews |
-| `company.domain` | `string` | Domain used for email placeholders (e.g. `"acme.com"`) |
-| `currency.singular` | `string` | Funding unit name, singular (e.g. `"Credit"`) |
-| `currency.plural` | `string` | Funding unit name, plural (e.g. `"Credits"`) |
-| `productTags` | `Record<string, { label, color }>` | Product taxonomy — keys are stored in the DB, labels and Tailwind colors are display-only |
-| `seed.adminEmail` | `string` | Admin account email for seeding |
-| `seed.adminPassword` | `string` | Admin account password for seeding |
-| `seed.userEmail` | `string` | Test user email for seeding |
-| `seed.userPassword` | `string` | Test user password for seeding |
-| `seed.userCompany` | `string` | Company name shown for the test user |
+### Making a user an admin
 
-### Customising product tags
+There is no public sign-up. The seed script creates the first admin automatically. To promote a user to admin after that:
 
-Product tags are plain strings stored in the database — define as many as you need:
+1. Go to your Supabase project → **Authentication → Users**
+2. Find the user, open their record
+3. Under **User Metadata**, set `app_metadata` to:
+   ```json
+   { "role": "ADMIN" }
+   ```
+4. Then in the admin panel, create or update their database record to reflect the admin role — or run this in the Supabase SQL editor:
+   ```sql
+   UPDATE "User" SET role = 'ADMIN' WHERE email = 'their@email.com';
+   ```
 
-```ts
-productTags: {
-  BACKEND:   { label: "Backend",   color: "bg-blue-600 text-blue-100"   },
-  FRONTEND:  { label: "Frontend",  color: "bg-violet-600 text-violet-100" },
-  MOBILE:    { label: "Mobile",    color: "bg-orange-600 text-orange-100" },
-  DATA:      { label: "Data",      color: "bg-emerald-600 text-emerald-100" },
-},
-```
+### Monthly balance reset
 
-After changing tag **keys**, run `npx prisma db push` to sync the schema, then reseed or update existing records.
-
-### Theme colours
-
-Colours are CSS custom properties in `app/globals.css` using the oklch colour space. Edit them directly — no config file or rebuild needed beyond a dev server restart.
-
----
-
-## Monthly balance reset
-
-User balances reset to their monthly allowance on the first of each month. Wire this up by calling the cron endpoint from your scheduler (Vercel Cron, GitHub Actions, etc.):
+User balances reset to their monthly allowance on the first of each month. Call this endpoint from your scheduler:
 
 ```
 GET /api/cron/reset-balances
 Authorization: Bearer <CRON_SECRET>
 ```
 
-Example Vercel cron config in `vercel.json`:
+Example Vercel cron config (`vercel.json`):
 
 ```json
 {
@@ -171,58 +145,50 @@ Example Vercel cron config in `vercel.json`:
 
 ---
 
-## Creating users
+## Whitelabeling
 
-There is no public sign-up. Admins create accounts from the **User Management** tab in the admin panel — this provisions both a Supabase auth account and a database record in one step. Users receive a temporary password and should be prompted to change it on first login.
+All brand-specific values live in `config/whitelabel.ts`. The file is gitignored — `config/whitelabel.example.ts` is what gets committed to version control.
 
-You can also send a password reset email at any time from the user management table.
+### Config reference
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `brand.name` | `string` | App name in the navbar, login page, and browser tab |
+| `brand.tagline` | `string` | Short tagline shown beneath the app name on login |
+| `brand.icon` | `LucideIcon` | Logo icon — import any icon from `lucide-react` |
+| `meta.title` | `string` | Full browser tab title |
+| `meta.description` | `string` | Meta description for search engines and link previews |
+| `company.domain` | `string` | Domain used for email placeholders (e.g. `"acme.com"`) |
+| `currency.singular` | `string` | Funding unit name, singular (e.g. `"Credit"`) |
+| `currency.plural` | `string` | Funding unit name, plural (e.g. `"Credits"`) |
+| `productTags` | `Record<string, { label, color }>` | Product taxonomy — keys are stored in the DB, labels and Tailwind colors are display-only |
+| `seed.*` | `string` | Credentials and company name for the seeded accounts |
+
+### Customising product tags
+
+```ts
+productTags: {
+  BACKEND:  { label: "Backend",  color: "bg-blue-600 text-blue-100"     },
+  FRONTEND: { label: "Frontend", color: "bg-violet-600 text-violet-100" },
+  MOBILE:   { label: "Mobile",   color: "bg-orange-600 text-orange-100" },
+},
+```
+
+Tag keys are stored in the database — keep them stable. Labels and colors can change freely at any time. After adding or renaming keys, run `npx prisma db push`.
+
+### Theme colors
+
+Edit the CSS custom properties in `app/globals.css`. No rebuild needed — restart the dev server or redeploy.
 
 ---
 
 ## Troubleshooting
 
-### `P1001` — Can't reach the database
+**Can't connect to the database (`P1001`)**
+Make sure `DATABASE_URL` uses the direct connection URL (port `5432`, not the pooler) and ends with `?sslmode=require`.
 
-Supabase requires SSL. Make sure your `DATABASE_URL` ends with `?sslmode=require`. Also use the **direct connection** URL (port `5432`), not the pooler URL, for Prisma CLI commands.
-
-### `@` or special characters in the database password
-
-URL-encode them before putting them in `DATABASE_URL`:
-
-| Character | Encoded |
-|-----------|---------|
-| `@` | `%40` |
-| `!` | `%21` |
-| `#` | `%23` |
-| `$` | `%24` |
-
-### Prisma client not found after schema changes
-
-The generated client lives at `app/generated/prisma` (gitignored). Regenerate it:
-
-```bash
-npx prisma generate
-```
-
-### Product tag added to config but not appearing in the dropdown
-
-The dropdown is driven entirely by `config/whitelabel.ts` — no schema change needed to add a tag. If you also changed a tag **key** that already has data, run `npx prisma db push` and update any existing rows manually (or reseed).
-
-### Tiptap editor not loading
-
-The editor is lazy-loaded with `next/dynamic` and `ssr: false` to avoid server-side module errors with Turbopack. If it fails to load, check the browser console for import errors and ensure `@tiptap/starter-kit` is installed.
-
-### `gpg: signing failed` on commit
-
-```bash
-git -c commit.gpgsign=false commit -m "your message"
-```
-
-Or disable GPG signing globally for this repo:
-
-```bash
-git config commit.gpgsign false
-```
+**Product tag added to config but not showing in the dropdown**
+The dropdown is driven entirely by `config/whitelabel.ts` — restart the dev server. If you also renamed an existing key, update any rows in the database that still have the old value.
 
 ---
 
