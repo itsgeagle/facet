@@ -5,7 +5,6 @@ import { Loader2, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import { adminUpdateFeatureStatus } from "@/lib/db/admin-actions";
 import { FeatureStatus } from "@/lib/types";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,

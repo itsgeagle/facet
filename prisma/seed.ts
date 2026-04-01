@@ -1,0 +1,268 @@
+import { PrismaClient } from "../app/generated/prisma";
+import { createClient } from "@supabase/supabase-js";
+import * as dotenv from "dotenv";
+
+dotenv.config({ path: ".env.local" });
+
+const prisma = new PrismaClient();
+
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  { auth: { autoRefreshToken: false, persistSession: false } }
+);
+
+async function upsertAuthUser(email: string, password: string, role: "ADMIN" | "USER") {
+  // Check if user already exists in Supabase
+  const { data: existing } = await supabaseAdmin.auth.admin.listUsers();
+  const found = existing?.users.find((u) => u.email === email);
+
+  if (found) {
+    // Update app_metadata to ensure correct role
+    await supabaseAdmin.auth.admin.updateUserById(found.id, {
+      app_metadata: { role },
+    });
+    return found;
+  }
+
+  const { data, error } = await supabaseAdmin.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+    app_metadata: { role },
+  });
+
+  if (error) throw new Error(`Failed to create Supabase user ${email}: ${error.message}`);
+  return data.user;
+}
+
+async function main() {
+  console.log("🌱 Seeding database...");
+
+  // --- Auth users ---
+  await upsertAuthUser("admin@managediamonds.com", "AdminFacet2025!", "ADMIN");
+  await upsertAuthUser("user@managediamonds.com", "UserFacet2025!", "USER");
+
+  // --- DB users ---
+  const adminUser = await prisma.user.upsert({
+    where: { email: "admin@managediamonds.com" },
+    update: {},
+    create: {
+      email: "admin@managediamonds.com",
+      role: "ADMIN",
+      monthlyAllowance: 50,
+      currentBalance: 50,
+    },
+  });
+
+  const testUser = await prisma.user.upsert({
+    where: { email: "user@managediamonds.com" },
+    update: {},
+    create: {
+      email: "user@managediamonds.com",
+      role: "USER",
+      companyName: "Diamond Co.",
+      monthlyAllowance: 10,
+      currentBalance: 10,
+    },
+  });
+
+  console.log(`✓ Admin: ${adminUser.email}`);
+  console.log(`✓ Test user: ${testUser.email}`);
+
+  // Tiptap JSON description helper
+  function tiptapDoc(text: string): string {
+    return JSON.stringify({
+      type: "doc",
+      content: [
+        {
+          type: "paragraph",
+          content: [{ type: "text", text }],
+        },
+      ],
+    });
+  }
+
+  // --- Feature requests ---
+  const pending1 = await prisma.featureRequest.upsert({
+    where: { id: "seed-pending-1" },
+    update: {},
+    create: {
+      id: "seed-pending-1",
+      title: "Bulk inventory import via CSV",
+      description: tiptapDoc(
+        "Allow users to import large inventory batches using a CSV template. This would save hours of manual data entry for large diamond collections."
+      ),
+      productTag: "WHITE_DIAMONDS",
+      status: "PENDING",
+      authorId: testUser.id,
+    },
+  });
+
+  const pending2 = await prisma.featureRequest.upsert({
+    where: { id: "seed-pending-2" },
+    update: {},
+    create: {
+      id: "seed-pending-2",
+      title: "RFID tag batch printing",
+      description: tiptapDoc(
+        "Print multiple RFID tags in a single batch job, with customizable label templates and barcode options."
+      ),
+      productTag: "RFID",
+      status: "PENDING",
+      authorId: adminUser.id,
+    },
+  });
+
+  const open1 = await prisma.featureRequest.upsert({
+    where: { id: "seed-open-1" },
+    update: {},
+    create: {
+      id: "seed-open-1",
+      title: "Advanced jewelry search filters",
+      description: tiptapDoc(
+        "Add filter options for metal type, stone count, and price range on the jewelry inventory page."
+      ),
+      productTag: "JEWELRY",
+      status: "OPEN",
+      caratCost: 15,
+      totalFunded: 6,
+      authorId: testUser.id,
+    },
+  });
+
+  const open2 = await prisma.featureRequest.upsert({
+    where: { id: "seed-open-2" },
+    update: {},
+    create: {
+      id: "seed-open-2",
+      title: "Mobile push notifications for low stock",
+      description: tiptapDoc(
+        "Send push notifications to the MD Mobile app when any SKU falls below a configurable threshold."
+      ),
+      productTag: "MD_MOBILE",
+      status: "OPEN",
+      caratCost: 20,
+      totalFunded: 12,
+      authorId: adminUser.id,
+    },
+  });
+
+  const committed1 = await prisma.featureRequest.upsert({
+    where: { id: "seed-committed-1" },
+    update: {},
+    create: {
+      id: "seed-committed-1",
+      title: "MD Commerce storefront theming",
+      description: tiptapDoc(
+        "Allow merchants to customize colors, fonts, and hero images for their MD Commerce storefronts without touching code."
+      ),
+      productTag: "MD_COMMERCE",
+      status: "COMMITTED",
+      caratCost: 10,
+      totalFunded: 10,
+      authorId: testUser.id,
+    },
+  });
+
+  const shipped1 = await prisma.featureRequest.upsert({
+    where: { id: "seed-shipped-1" },
+    update: {},
+    create: {
+      id: "seed-shipped-1",
+      title: "MD Connect supplier API integration",
+      description: tiptapDoc(
+        "A REST API integration layer to sync supplier price lists and availability in real time via MD Connect."
+      ),
+      productTag: "MD_CONNECT",
+      status: "SHIPPED",
+      caratCost: 8,
+      totalFunded: 8,
+      authorId: adminUser.id,
+    },
+  });
+
+  console.log("✓ 6 feature requests seeded");
+
+  // --- Contributions ---
+  await prisma.contribution.upsert({
+    where: { id: "seed-contrib-1" },
+    update: {},
+    create: {
+      id: "seed-contrib-1",
+      userId: adminUser.id,
+      featureId: open1.id,
+      amount: 4,
+    },
+  });
+
+  await prisma.contribution.upsert({
+    where: { id: "seed-contrib-2" },
+    update: {},
+    create: {
+      id: "seed-contrib-2",
+      userId: testUser.id,
+      featureId: open1.id,
+      amount: 2,
+    },
+  });
+
+  await prisma.contribution.upsert({
+    where: { id: "seed-contrib-3" },
+    update: {},
+    create: {
+      id: "seed-contrib-3",
+      userId: testUser.id,
+      featureId: open2.id,
+      amount: 7,
+    },
+  });
+
+  await prisma.contribution.upsert({
+    where: { id: "seed-contrib-4" },
+    update: {},
+    create: {
+      id: "seed-contrib-4",
+      userId: adminUser.id,
+      featureId: open2.id,
+      amount: 5,
+    },
+  });
+
+  await prisma.contribution.upsert({
+    where: { id: "seed-contrib-5" },
+    update: {},
+    create: {
+      id: "seed-contrib-5",
+      userId: testUser.id,
+      featureId: committed1.id,
+      amount: 5,
+    },
+  });
+
+  await prisma.contribution.upsert({
+    where: { id: "seed-contrib-6" },
+    update: {},
+    create: {
+      id: "seed-contrib-6",
+      userId: adminUser.id,
+      featureId: committed1.id,
+      amount: 5,
+    },
+  });
+
+  // Suppress unused variable warnings
+  void pending1;
+  void pending2;
+  void shipped1;
+
+  console.log("✓ Contributions seeded");
+  console.log("✅ Seed complete");
+}
+
+main()
+  .catch((e) => {
+    console.error("Seed failed:", e);
+    process.exit(1);
+  })
+  .finally(() => prisma.$disconnect());
