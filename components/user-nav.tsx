@@ -1,9 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { LogOut, User } from "lucide-react";
-import { toast } from "sonner";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { signOut } from "next-auth/react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,16 +18,6 @@ interface UserNavProps {
 }
 
 export function UserNav({ email }: UserNavProps) {
-  const router = useRouter();
-
-  async function handleSignOut() {
-    const supabase = createSupabaseBrowserClient();
-    await supabase.auth.signOut();
-    toast.success("Signed out");
-    router.push("/login");
-    router.refresh();
-  }
-
   const initials = email.slice(0, 2).toUpperCase();
 
   return (
@@ -50,7 +38,10 @@ export function UserNav({ email }: UserNavProps) {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
+          <DropdownMenuItem
+            onClick={() => signOut({ callbackUrl: "/login" })}
+            className="cursor-pointer"
+          >
             <LogOut className="h-3.5 w-3.5 mr-2" />
             Sign out
           </DropdownMenuItem>

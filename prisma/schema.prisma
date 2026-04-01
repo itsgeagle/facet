@@ -29,6 +29,7 @@ model User {
   monthlyAllowance Int              @default(10)
   currentBalance   Int              @default(10)
   companyName      String?
+  passwordHash     String           @default("")
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
   featureRequests  FeatureRequest[]

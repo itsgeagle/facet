@@ -22,7 +22,7 @@ A feature automatically moves from Open to Committed the moment crowdfunding rea
 - **Framework** — Next.js 16 (App Router, TypeScript)
 - **UI** — Tailwind CSS v4, shadcn/ui, Lucide icons
 - **Database** — PostgreSQL via Prisma ORM
-- **Auth** — Supabase Auth (email/password, invite-only)
+- **Auth** — Auth.js v5 with JWT sessions (email/password, invite-only)
 - **Rich text** — Tiptap editor
 
 ---
@@ -30,7 +30,7 @@ A feature automatically moves from Open to Committed the moment crowdfunding rea
 ## Prerequisites
 
 - Node.js 18+
-- A [Supabase](https://supabase.com) project (free tier works)
+- A PostgreSQL database
 
 ---
 
@@ -49,13 +49,12 @@ npm install
 Create `.env.local` in the project root:
 
 ```env
-# Supabase — found in your project's API settings
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-
 # Database — use the direct connection URL (not the pooler) for Prisma
-DATABASE_URL=postgresql://postgres:your-password@db.your-project.supabase.co:5432/postgres?sslmode=require
+DATABASE_URL=postgresql://postgres:your-password@db.your-project.example.com:5432/postgres?sslmode=require
+
+# Auth.js — generate with: openssl rand -base64 32
+AUTH_SECRET=your-secret-here
+AUTH_URL=https://your-domain.com
 
 # Cron endpoint protection
 CRON_SECRET=a-long-random-secret-string
@@ -108,18 +107,11 @@ Or deploy to any platform that supports Node.js — Vercel, Railway, Fly.io, etc
 
 ### Making a user an admin
 
-There is no public sign-up. The seed script creates the first admin automatically. To promote a user to admin after that:
+There is no public sign-up. The seed script creates the first admin automatically. To promote a user to admin after that, run this SQL against your database:
 
-1. Go to your Supabase project → **Authentication → Users**
-2. Find the user, open their record
-3. Under **User Metadata**, set `app_metadata` to:
-   ```json
-   { "role": "ADMIN" }
-   ```
-4. Then in the admin panel, create or update their database record to reflect the admin role — or run this in the Supabase SQL editor:
-   ```sql
-   UPDATE "User" SET role = 'ADMIN' WHERE email = 'their@email.com';
-   ```
+```sql
+UPDATE "User" SET role = 'ADMIN' WHERE email = 'their@email.com';
+```
 
 ### Monthly balance reset
 

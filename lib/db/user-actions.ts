@@ -1,11 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db/prisma";
 import { Role } from "@/lib/types";
 import { getSessionUser } from "@/lib/auth";
-import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { createUserSchema, updateAllowanceSchema } from "@/lib/validations/user";
+import { createUserSchema, updateAllowanceSchema, setPasswordSchema } from "@/lib/validations/user";
 import type { ActionResult } from "@/lib/types";
 
 async function requireAdmin() {
@@ -25,59 +25,48 @@ export async function createUser(data: unknown): Promise<ActionResult> {
 
   const { email, password, companyName, monthlyAllowance } = parsed.data;
 
-  const supabaseAdmin = createSupabaseAdminClient();
-  const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
-    email,
-    password,
-    email_confirm: true,
-    app_metadata: { role: Role.USER },
+  const existing = await prisma.user.findUnique({ where: { email } });
+  if (existing) {
+    return { success: false, error: "A user with that email already exists" };
+  }
+
+  const passwordHash = await bcrypt.hash(password, 12);
+
+  await prisma.user.create({
+    data: {
+      email,
+      role: Role.USER,
+      companyName: companyName ?? null,
+      monthlyAllowance,
+      currentBalance: monthlyAllowance,
+      passwordHash,
+    },
   });
-
-  if (authError) {
-    return { success: false, error: authError.message };
-  }
-
-  if (!authData.user) {
-    return { success: false, error: "Failed to create auth user" };
-  }
-
-  try {
-    await prisma.user.create({
-      data: {
-        email,
-        role: Role.USER,
-        companyName: companyName ?? null,
-        monthlyAllowance,
-        currentBalance: monthlyAllowance,
-      },
-    });
-  } catch (err) {
-    // Roll back Supabase user if DB creation fails
-    await supabaseAdmin.auth.admin.deleteUser(authData.user.id);
-    const message = err instanceof Error ? err.message : "Database error";
-    return { success: false, error: message };
-  }
 
   revalidatePath("/admin");
   return { success: true };
 }
 
-export async function resetUserPassword(userId: string): Promise<ActionResult> {
+export async function resetUserPassword(data: unknown): Promise<ActionResult> {
   const admin = await requireAdmin();
   if (!admin) return { success: false, error: "Unauthorized" };
+
+  const parsed = setPasswordSchema.safeParse(data);
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+
+  const { userId, newPassword } = parsed.data;
 
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) return { success: false, error: "User not found" };
 
-  const supabaseAdmin = createSupabaseAdminClient();
-  const { error } = await supabaseAdmin.auth.admin.generateLink({
-    type: "recovery",
-    email: user.email,
-  });
+  const passwordHash = await bcrypt.hash(newPassword, 12);
 
-  if (error) {
-    return { success: false, error: error.message };
-  }
+  await prisma.user.update({
+    where: { id: userId },
+    data: { passwordHash },
+  });
 
   return { success: true };
 }

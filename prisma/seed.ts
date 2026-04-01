@@ -1,5 +1,5 @@
 import { PrismaClient } from "../app/generated/prisma/client";
-import { createClient } from "@supabase/supabase-js";
+import bcrypt from "bcryptjs";
 import { config } from "dotenv";
 config({ path: ".env" });
 config({ path: ".env.local", override: true });
@@ -19,64 +19,36 @@ const { seed } = whitelabelConfig;
 
 const prisma = new PrismaClient();
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  { auth: { autoRefreshToken: false, persistSession: false } }
-);
-
-async function upsertAuthUser(email: string, password: string, role: "ADMIN" | "USER") {
-  // Check if user already exists in Supabase
-  const { data: existing } = await supabaseAdmin.auth.admin.listUsers();
-  const found = existing?.users.find((u) => u.email === email);
-
-  if (found) {
-    // Update app_metadata to ensure correct role
-    await supabaseAdmin.auth.admin.updateUserById(found.id, {
-      app_metadata: { role },
-    });
-    return found;
-  }
-
-  const { data, error } = await supabaseAdmin.auth.admin.createUser({
-    email,
-    password,
-    email_confirm: true,
-    app_metadata: { role },
-  });
-
-  if (error) throw new Error(`Failed to create Supabase user ${email}: ${error.message}`);
-  return data.user;
-}
-
 async function main() {
   console.log("🌱 Seeding database...");
 
-  // --- Auth users ---
-  await upsertAuthUser(seed.adminEmail, seed.adminPassword, "ADMIN");
-  await upsertAuthUser(seed.userEmail, seed.userPassword, "USER");
+  // --- Hash passwords ---
+  const adminPasswordHash = await bcrypt.hash(seed.adminPassword, 12);
+  const userPasswordHash = await bcrypt.hash(seed.userPassword, 12);
 
   // --- DB users ---
   const adminUser = await prisma.user.upsert({
     where: { email: seed.adminEmail },
-    update: {},
+    update: { passwordHash: adminPasswordHash },
     create: {
       email: seed.adminEmail,
       role: "ADMIN",
       monthlyAllowance: 50,
       currentBalance: 50,
+      passwordHash: adminPasswordHash,
     },
   });
 
   const testUser = await prisma.user.upsert({
     where: { email: seed.userEmail },
-    update: {},
+    update: { passwordHash: userPasswordHash },
     create: {
       email: seed.userEmail,
       role: "USER",
       companyName: seed.userCompany,
       monthlyAllowance: 10,
       currentBalance: 10,
+      passwordHash: userPasswordHash,
     },
   });
 

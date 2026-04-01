@@ -4,9 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { signIn } from "next-auth/react";
 import { BrandIcon } from "@/components/brand-icon";
 import { brand, company } from "@/lib/brand";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,19 +22,18 @@ export function LoginForm() {
     e.preventDefault();
     setLoading(true);
 
-    const supabase = createSupabaseBrowserClient();
-    const { error } = await supabase.auth.signInWithPassword({
+    const result = await signIn("credentials", {
       email,
       password,
+      redirect: false,
     });
 
-    if (error) {
-      toast.error(error.message);
+    if (result?.error) {
+      toast.error("Invalid email or password");
       setLoading(false);
       return;
     }
 
-    toast.success("Welcome back!");
     router.push("/dashboard");
     router.refresh();
   }
