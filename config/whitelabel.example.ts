@@ -26,14 +26,6 @@ export interface WhitelabelConfig {
     /** Plural unit name, e.g. "Carats". */
     plural: string;
   };
-  /**
-   * Product tags that users can attach to feature requests.
-   * Keys become the values stored in the database — choose stable identifiers
-   * (e.g. "JEWELRY"). Labels and colors are display-only and can change freely.
-   * Tailwind color classes are safe to use; they are static strings included at
-   * build time.
-   */
-  productTags: Record<string, { label: string; color: string }>;
   seed: {
     /** Email address for the seeded admin account. */
     adminEmail: string;
@@ -64,14 +56,6 @@ const config: WhitelabelConfig = {
   currency: {
     singular: "Carat",
     plural: "Carats",
-  },
-  productTags: {
-    WHITE_DIAMONDS: { label: "White Diamonds", color: "bg-slate-600 text-slate-100" },
-    JEWELRY: { label: "Jewelry", color: "bg-purple-600 text-purple-100" },
-    RFID: { label: "RFID", color: "bg-blue-600 text-blue-100" },
-    MD_MOBILE: { label: "MD Mobile", color: "bg-orange-600 text-orange-100" },
-    MD_COMMERCE: { label: "MD Commerce", color: "bg-pink-600 text-pink-100" },
-    MD_CONNECT: { label: "MD Connect", color: "bg-cyan-600 text-cyan-100" },
   },
   seed: {
     adminEmail: "admin@managediamonds.com",

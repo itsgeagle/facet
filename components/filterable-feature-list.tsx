@@ -3,11 +3,8 @@
 import { useState } from "react";
 import { FeatureList } from "@/components/feature-list";
 import { ProductTagBadge } from "@/components/product-tag-badge";
-import { productTagsConfig } from "@/lib/brand";
-import type { FeatureWithAuthor } from "@/lib/types";
+import type { FeatureWithAuthor, ProductTag } from "@/lib/types";
 import { cn } from "@/lib/utils";
-
-const ALL_TAGS = Object.keys(productTagsConfig);
 
 interface FilterableFeatureListProps {
   features: FeatureWithAuthor[];
@@ -22,34 +19,38 @@ export function FilterableFeatureList({
   emptyDescription,
   showSubmitCta,
 }: FilterableFeatureListProps) {
-  const [activeTag, setActiveTag] = useState<string | null>(null);
+  const [activeTagId, setActiveTagId] = useState<string | null>(null);
 
-  const usedTags = Array.from(new Set(features.map((f) => f.productTag)));
+  // Derive unique tags from the features themselves, sorted by sortOrder
+  const tagMap = new Map<string, ProductTag>();
+  features.forEach((f) => tagMap.set(f.productTagId, f.productTag));
+  const usedTags = Array.from(tagMap.values()).sort((a, b) => a.sortOrder - b.sortOrder);
+
   const filtered =
-    activeTag === null ? features : features.filter((f) => f.productTag === activeTag);
+    activeTagId === null ? features : features.filter((f) => f.productTagId === activeTagId);
 
   return (
     <div className="space-y-4">
       {usedTags.length > 1 && (
         <div className="flex flex-wrap gap-2">
           <button
-            onClick={() => setActiveTag(null)}
+            onClick={() => setActiveTagId(null)}
             className={cn(
               "inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition-colors",
-              activeTag === null
+              activeTagId === null
                 ? "bg-primary text-primary-foreground"
                 : "bg-muted text-muted-foreground hover:bg-muted/80"
             )}
           >
             All
           </button>
-          {ALL_TAGS.filter((t) => usedTags.includes(t)).map((tag) => (
+          {usedTags.map((tag) => (
             <button
-              key={tag}
-              onClick={() => setActiveTag(activeTag === tag ? null : tag)}
+              key={tag.id}
+              onClick={() => setActiveTagId(activeTagId === tag.id ? null : tag.id)}
               className={cn(
                 "transition-opacity",
-                activeTag !== null && activeTag !== tag ? "opacity-50" : "opacity-100"
+                activeTagId !== null && activeTagId !== tag.id ? "opacity-50" : "opacity-100"
               )}
             >
               <ProductTagBadge tag={tag} />
@@ -59,13 +60,9 @@ export function FilterableFeatureList({
       )}
       <FeatureList
         features={filtered}
-        emptyMessage={
-          activeTag !== null
-            ? "No features match this filter."
-            : emptyMessage
-        }
-        emptyDescription={activeTag !== null ? undefined : emptyDescription}
-        showSubmitCta={activeTag === null ? showSubmitCta : false}
+        emptyMessage={activeTagId !== null ? "No features match this filter." : emptyMessage}
+        emptyDescription={activeTagId !== null ? undefined : emptyDescription}
+        showSubmitCta={activeTagId === null ? showSubmitCta : false}
       />
     </div>
   );

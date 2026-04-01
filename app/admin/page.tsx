@@ -1,21 +1,33 @@
 import { getPendingFeatures, getActiveAdminFeatures, getAllFeatures } from "@/lib/db/features";
 import { getUsers } from "@/lib/db/users";
 import { getAdminStats } from "@/lib/db/analytics";
+import { getAllProductTagsAdmin } from "@/lib/db/tags";
+import { prisma } from "@/lib/db/prisma";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ModerationQueue } from "@/components/admin/moderation-queue";
 import { AllFeaturesTable } from "@/components/admin/all-features-table";
 import { UserManagementTable } from "@/components/admin/user-management-table";
 import { CreateUserModal } from "@/components/admin/create-user-modal";
 import { StatsBar } from "@/components/admin/stats-bar";
+import { ProductTagsTab } from "@/components/admin/product-tags-tab";
 
 export default async function AdminPage() {
-  const [pendingFeatures, activeFeatures, allFeatures, users, stats] = await Promise.all([
+  const [pendingFeatures, activeFeatures, allFeatures, users, stats, allTags] = await Promise.all([
     getPendingFeatures(),
     getActiveAdminFeatures(),
     getAllFeatures(),
     getUsers(),
     getAdminStats(),
+    getAllProductTagsAdmin(),
   ]);
+
+  // Count features per tag for the Tags tab
+  const tagCounts = await prisma.featureRequest.groupBy({
+    by: ["productTagId"],
+    _count: { id: true },
+  });
+  const featureCounts: Record<string, number> = {};
+  tagCounts.forEach((r) => { featureCounts[r.productTagId] = r._count.id; });
 
   return (
     <div>
@@ -33,6 +45,7 @@ export default async function AdminPage() {
           </TabsTrigger>
           <TabsTrigger value="features">All Features</TabsTrigger>
           <TabsTrigger value="users">User Management</TabsTrigger>
+          <TabsTrigger value="tags">Product Tags</TabsTrigger>
         </TabsList>
 
         <TabsContent value="moderation">
@@ -61,6 +74,10 @@ export default async function AdminPage() {
             </div>
             <UserManagementTable users={users} />
           </div>
+        </TabsContent>
+
+        <TabsContent value="tags">
+          <ProductTagsTab initialTags={allTags} featureCounts={featureCounts} />
         </TabsContent>
       </Tabs>
     </div>

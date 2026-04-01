@@ -7,8 +7,16 @@ export const Role = {
 } as const;
 export type Role = (typeof Role)[keyof typeof Role];
 
-/** Product tag values are defined in config/whitelabel.ts and stored as plain strings. */
-export type ProductTag = string;
+export interface ProductTag {
+  id: string;
+  value: string;
+  label: string;
+  color: string;
+  description: string | null;
+  sortOrder: number;
+  isActive: boolean;
+  createdAt: Date;
+}
 
 export const FeatureStatus = {
   PENDING: "PENDING",
@@ -36,6 +44,7 @@ export interface FeatureRequest {
   id: string;
   title: string;
   description: string;
+  productTagId: string;
   productTag: ProductTag;
   status: FeatureStatus;
   caratCost: number | null;

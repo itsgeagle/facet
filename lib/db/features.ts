@@ -11,7 +11,7 @@ const authorSelect = {
 export async function getOpenFeatures(): Promise<FeatureWithAuthor[]> {
   return prisma.featureRequest.findMany({
     where: { status: FeatureStatus.OPEN },
-    include: { author: { select: authorSelect } },
+    include: { productTag: true, author: { select: authorSelect } },
     orderBy: { createdAt: "desc" },
   });
 }
@@ -27,7 +27,7 @@ export async function getCommittedFeatures(): Promise<FeatureWithAuthor[]> {
         ],
       },
     },
-    include: { author: { select: authorSelect } },
+    include: { productTag: true, author: { select: authorSelect } },
     orderBy: { createdAt: "desc" },
   });
 }
@@ -35,7 +35,7 @@ export async function getCommittedFeatures(): Promise<FeatureWithAuthor[]> {
 export async function getUserFeatures(userId: string): Promise<FeatureWithAuthor[]> {
   return prisma.featureRequest.findMany({
     where: { authorId: userId },
-    include: { author: { select: authorSelect } },
+    include: { productTag: true, author: { select: authorSelect } },
     orderBy: { createdAt: "desc" },
   });
 }
@@ -44,6 +44,7 @@ export async function getFeatureById(id: string) {
   return prisma.featureRequest.findUnique({
     where: { id },
     include: {
+      productTag: true,
       author: { select: authorSelect },
       contributions: {
         include: { user: { select: authorSelect } },
@@ -56,14 +57,14 @@ export async function getFeatureById(id: string) {
 export async function getPendingFeatures(): Promise<FeatureWithAuthor[]> {
   return prisma.featureRequest.findMany({
     where: { status: FeatureStatus.PENDING },
-    include: { author: { select: authorSelect } },
+    include: { productTag: true, author: { select: authorSelect } },
     orderBy: { createdAt: "asc" },
   });
 }
 
 export async function getAllFeatures(): Promise<FeatureWithAuthor[]> {
   return prisma.featureRequest.findMany({
-    include: { author: { select: authorSelect } },
+    include: { productTag: true, author: { select: authorSelect } },
     orderBy: { createdAt: "desc" },
   });
 }
@@ -73,7 +74,7 @@ export async function getActiveAdminFeatures(): Promise<FeatureWithAuthor[]> {
     where: {
       status: { in: [FeatureStatus.COMMITTED, FeatureStatus.IN_PROGRESS] },
     },
-    include: { author: { select: authorSelect } },
+    include: { productTag: true, author: { select: authorSelect } },
     orderBy: { updatedAt: "desc" },
   });
 }

@@ -4,7 +4,6 @@ export const brand = config.brand;
 export const meta = config.meta;
 export const company = config.company;
 export const currency = config.currency;
-export const productTagsConfig = config.productTags;
 export const seedConfig = config.seed;
 
 /**

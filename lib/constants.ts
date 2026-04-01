@@ -1,13 +1,4 @@
 import { FeatureStatus } from "@/lib/types";
-import { productTagsConfig } from "@/lib/brand";
-
-export const PRODUCT_TAG_COLORS: Record<string, string> = Object.fromEntries(
-  Object.entries(productTagsConfig).map(([key, { color }]) => [key, color])
-);
-
-export const PRODUCT_TAG_LABELS: Record<string, string> = Object.fromEntries(
-  Object.entries(productTagsConfig).map(([key, { label }]) => [key, label])
-);
 
 export const STATUS_COLORS: Record<FeatureStatus, string> = {
   [FeatureStatus.PENDING]: "bg-yellow-600 text-yellow-100",

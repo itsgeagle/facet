@@ -153,20 +153,11 @@ All brand-specific values live in `config/whitelabel.ts`. The file is gitignored
 | `company.domain` | `string` | Domain used for email placeholders (e.g. `"acme.com"`) |
 | `currency.singular` | `string` | Funding unit name, singular (e.g. `"Credit"`) |
 | `currency.plural` | `string` | Funding unit name, plural (e.g. `"Credits"`) |
-| `productTags` | `Record<string, { label, color }>` | Product taxonomy — keys are stored in the DB, labels and Tailwind colors are display-only |
 | `seed.*` | `string` | Credentials and company name for the seeded accounts |
 
-### Customising product tags
+### Product tags
 
-```ts
-productTags: {
-  BACKEND:  { label: "Backend",  color: "bg-blue-600 text-blue-100"     },
-  FRONTEND: { label: "Frontend", color: "bg-violet-600 text-violet-100" },
-  MOBILE:   { label: "Mobile",   color: "bg-orange-600 text-orange-100" },
-},
-```
-
-Tag keys are stored in the database — keep them stable. Labels and colors can change freely at any time. After adding or renaming keys, run `npx prisma db push`.
+Product tags are managed live from the admin panel — no config file or deploy needed. Go to **Admin → Product Tags** to create, rename, recolor, reorder, and deactivate tags at any time.
 
 ### Theme colors
 
@@ -178,9 +169,6 @@ Edit the CSS custom properties in `app/globals.css`. No rebuild needed — resta
 
 **Can't connect to the database (`P1001`)**
 Make sure `DATABASE_URL` uses the direct connection URL (port `5432`, not the pooler) and ends with `?sslmode=require`.
-
-**Product tag added to config but not showing in the dropdown**
-The dropdown is driven entirely by `config/whitelabel.ts` — restart the dev server. If you also renamed an existing key, update any rows in the database that still have the old value.
 
 ---
 

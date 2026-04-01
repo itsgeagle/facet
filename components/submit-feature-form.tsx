@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { submitFeature } from "@/lib/db/feature-actions";
-import { productTagsConfig } from "@/lib/brand";
+import type { ProductTag } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,17 +23,21 @@ const TiptapEditor = dynamic(
   { ssr: false, loading: () => <div className="h-[240px] rounded-lg border border-border bg-card animate-pulse" /> }
 );
 
-export function SubmitFeatureForm() {
+interface SubmitFeatureFormProps {
+  tags: ProductTag[];
+}
+
+export function SubmitFeatureForm({ tags }: SubmitFeatureFormProps) {
   const router = useRouter();
   const [title, setTitle] = useState("");
-  const [productTag, setProductTag] = useState("");
+  const [productTagId, setProductTagId] = useState("");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!productTag) {
-      toast.error("Please select a product tag");
+    if (!productTagId) {
+      toast.error("Please select a product");
       return;
     }
     if (!description || description === "{}") {
@@ -43,7 +47,7 @@ export function SubmitFeatureForm() {
 
     setLoading(true);
 
-    const result = await submitFeature({ title, productTag, description });
+    const result = await submitFeature({ title, productTagId, description });
 
     if (!result.success) {
       toast.error(result.error);
@@ -73,14 +77,14 @@ export function SubmitFeatureForm() {
 
       <div className="space-y-2">
         <Label htmlFor="productTag">Product</Label>
-        <Select value={productTag} onValueChange={(v) => setProductTag(v ?? "")}>
+        <Select value={productTagId} onValueChange={(v) => setProductTagId(v ?? "")}>
           <SelectTrigger id="productTag">
             <SelectValue placeholder="Select a product..." />
           </SelectTrigger>
           <SelectContent>
-            {Object.entries(productTagsConfig).map(([value, { label }]) => (
-              <SelectItem key={value} value={value}>
-                {label}
+            {tags.map((tag) => (
+              <SelectItem key={tag.id} value={tag.id}>
+                {tag.label}
               </SelectItem>
             ))}
           </SelectContent>

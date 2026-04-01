@@ -36,20 +36,33 @@ model User {
   contributions    Contribution[]
 }
 
+model ProductTag {
+  id          String           @id @default(cuid())
+  value       String           @unique
+  label       String
+  color       String
+  description String?
+  sortOrder   Int              @default(0)
+  isActive    Boolean          @default(true)
+  createdAt   DateTime         @default(now())
+  features    FeatureRequest[]
+}
+
 model FeatureRequest {
-  id            String        @id @default(cuid())
-  title         String
-  description   String        @db.Text
-  productTag    String
-  status        FeatureStatus @default(PENDING)
-  caratCost     Int?
-  totalFunded      Int           @default(0)
-  rejectionReason  String?
-  authorId         String
-  author        User          @relation(fields: [authorId], references: [id])
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  contributions Contribution[]
+  id              String        @id @default(cuid())
+  title           String
+  description     String        @db.Text
+  productTagId    String
+  productTag      ProductTag    @relation(fields: [productTagId], references: [id])
+  status          FeatureStatus @default(PENDING)
+  caratCost       Int?
+  totalFunded     Int           @default(0)
+  rejectionReason String?
+  authorId        String
+  author          User          @relation(fields: [authorId], references: [id])
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  contributions   Contribution[]
 }
 
 model Contribution {

@@ -15,11 +15,16 @@ export async function submitFeature(data: unknown): Promise<ActionResult> {
     return { success: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
+  const tag = await prisma.productTag.findFirst({
+    where: { id: parsed.data.productTagId, isActive: true },
+  });
+  if (!tag) return { success: false, error: "Invalid product tag" };
+
   await prisma.featureRequest.create({
     data: {
       title: parsed.data.title,
       description: parsed.data.description,
-      productTag: parsed.data.productTag,
+      productTagId: parsed.data.productTagId,
       authorId: user.id,
     },
   });
