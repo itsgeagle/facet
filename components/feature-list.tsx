@@ -1,19 +1,46 @@
+"use client";
+
+import Link from "next/link";
+import { Gem, Plus } from "lucide-react";
 import { FeatureCard } from "@/components/feature-card";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import type { FeatureWithAuthor } from "@/lib/types";
 
 interface FeatureListProps {
   features: FeatureWithAuthor[];
   emptyMessage?: string;
+  emptyDescription?: string;
+  showSubmitCta?: boolean;
 }
 
 export function FeatureList({
   features,
   emptyMessage = "No features found.",
+  emptyDescription,
+  showSubmitCta = false,
 }: FeatureListProps) {
   if (features.length === 0) {
     return (
-      <div className="flex items-center justify-center py-16 text-muted-foreground text-sm">
-        {emptyMessage}
+      <div className="flex flex-col items-center justify-center py-20 gap-4 text-center">
+        <div className="flex items-center justify-center w-14 h-14 rounded-full bg-muted">
+          <Gem className="h-7 w-7 text-muted-foreground" />
+        </div>
+        <div className="space-y-1">
+          <p className="font-medium text-foreground">{emptyMessage}</p>
+          {emptyDescription && (
+            <p className="text-sm text-muted-foreground max-w-xs">{emptyDescription}</p>
+          )}
+        </div>
+        {showSubmitCta && (
+          <Link
+            href="/dashboard/submit"
+            className={cn(buttonVariants({ size: "sm" }), "flex items-center gap-1.5")}
+          >
+            <Plus className="h-3.5 w-3.5" />
+            Submit the first feature
+          </Link>
+        )}
       </div>
     );
   }

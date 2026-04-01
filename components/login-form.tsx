@@ -32,6 +32,7 @@ export function LoginForm() {
       return;
     }
 
+    toast.success("Welcome back!");
     router.push("/dashboard");
     router.refresh();
   }

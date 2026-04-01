@@ -50,6 +50,8 @@ export default async function DashboardPage() {
           <FeatureList
             features={openFeatures}
             emptyMessage="No features open for funding yet."
+            emptyDescription="Features submitted by your team will appear here once an admin approves them and sets a Carat cost."
+            showSubmitCta
           />
         </TabsContent>
 
@@ -57,14 +59,18 @@ export default async function DashboardPage() {
           <FeatureList
             features={committedFeatures}
             emptyMessage="No committed features yet."
+            emptyDescription="Features will move here once they've been fully funded by the community."
           />
         </TabsContent>
 
         <TabsContent value="mine">
           {myFeatures.length === 0 ? (
-            <div className="flex items-center justify-center py-16 text-muted-foreground text-sm">
-              You haven&apos;t submitted any features yet.
-            </div>
+            <FeatureList
+              features={[]}
+              emptyMessage="You haven't submitted any features yet."
+              emptyDescription="Submit a feature request and an admin will review it and set a Carat cost."
+              showSubmitCta
+            />
           ) : (
             <div className="rounded-lg border border-border overflow-hidden">
               <Table>
