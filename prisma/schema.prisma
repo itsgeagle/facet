@@ -1,0 +1,70 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+enum ProductTag {
+  WHITE_DIAMONDS
+  JEWELRY
+  RFID
+  MD_MOBILE
+  MD_COMMERCE
+  MD_CONNECT
+}
+
+enum FeatureStatus {
+  PENDING
+  OPEN
+  COMMITTED
+  IN_PROGRESS
+  SHIPPED
+  REJECTED
+}
+
+model User {
+  id               String           @id @default(cuid())
+  email            String           @unique
+  role             Role             @default(USER)
+  monthlyAllowance Int              @default(10)
+  currentBalance   Int              @default(10)
+  companyName      String?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  featureRequests  FeatureRequest[]
+  contributions    Contribution[]
+}
+
+model FeatureRequest {
+  id            String        @id @default(cuid())
+  title         String
+  description   String        @db.Text
+  productTag    ProductTag
+  status        FeatureStatus @default(PENDING)
+  caratCost     Int?
+  totalFunded   Int           @default(0)
+  authorId      String
+  author        User          @relation(fields: [authorId], references: [id])
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  contributions Contribution[]
+}
+
+model Contribution {
+  id        String         @id @default(cuid())
+  userId    String
+  featureId String
+  amount    Int
+  createdAt DateTime       @default(now())
+  user      User           @relation(fields: [userId], references: [id])
+  feature   FeatureRequest @relation(fields: [featureId], references: [id])
+}
