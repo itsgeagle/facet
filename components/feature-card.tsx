@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import { ProductTagBadge } from "@/components/product-tag-badge";
 import { StatusBadge } from "@/components/status-badge";
 import { FeatureStatus } from "@/lib/types";
@@ -40,10 +39,12 @@ export function FeatureCard({ feature }: FeatureCardProps) {
         <CardContent className="pt-0">
           {showProgress && feature.caratCost != null && (
             <div className="space-y-1.5">
-              <Progress
-                value={fundingPercent}
-                className="h-2 bg-muted [&>div]:bg-primary"
-              />
+              <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
+                <div
+                  className="h-full bg-primary transition-all"
+                  style={{ width: `${fundingPercent}%` }}
+                />
+              </div>
               <p className="text-xs text-muted-foreground">
                 {feature.totalFunded} / {feature.caratCost} Carats
               </p>

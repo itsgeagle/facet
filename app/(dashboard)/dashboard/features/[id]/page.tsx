@@ -7,7 +7,6 @@ import { StatusBadge } from "@/components/status-badge";
 import { TiptapRenderer } from "@/components/tiptap-renderer";
 import { ContributeModal } from "@/components/contribute-modal";
 import { ContributorList } from "@/components/contributor-list";
-import { Progress } from "@/components/ui/progress";
 import { Gem } from "lucide-react";
 
 interface FeatureDetailPageProps {
@@ -80,10 +79,12 @@ export default async function FeatureDetailPage({ params }: FeatureDetailPagePro
               <span className="text-muted-foreground">/ {feature.caratCost} Carats</span>
             </span>
           </div>
-          <Progress
-            value={fundingPercent}
-            className="h-3 bg-muted [&>div]:bg-primary"
-          />
+          <div className="h-3 w-full rounded-full bg-muted overflow-hidden">
+            <div
+              className="h-full bg-primary transition-all"
+              style={{ width: `${fundingPercent}%` }}
+            />
+          </div>
           <p className="text-xs text-muted-foreground">
             {fundingPercent}% funded
             {remainingNeeded > 0 && ` — ${remainingNeeded} Carats needed`}

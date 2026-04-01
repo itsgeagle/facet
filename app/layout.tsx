@@ -9,7 +9,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "The Facet — Feature Governance",
+  title: "Facet — Feature Governance",
   description: "Crowdfund feature development with Carats",
 };
 

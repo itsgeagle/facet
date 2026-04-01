@@ -42,7 +42,7 @@ export function LoginForm() {
         <div className="flex items-center justify-center gap-2 mb-2">
           <Gem className="h-7 w-7 text-primary" />
           <span className="text-2xl font-bold tracking-tight text-foreground">
-            The Facet
+            Facet
           </span>
         </div>
         <p className="text-sm text-muted-foreground">Manage Diamonds</p>

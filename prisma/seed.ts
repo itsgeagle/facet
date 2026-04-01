@@ -1,8 +1,8 @@
-import { PrismaClient } from "../app/generated/prisma";
+import { PrismaClient } from "../app/generated/prisma/client";
 import { createClient } from "@supabase/supabase-js";
-import * as dotenv from "dotenv";
-
-dotenv.config({ path: ".env.local" });
+import { config } from "dotenv";
+config({ path: ".env" });
+config({ path: ".env.local", override: true });
 
 const prisma = new PrismaClient();
 
