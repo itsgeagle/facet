@@ -1,5 +1,3 @@
-"use server";
-
 import { prisma } from "@/lib/db/prisma";
 import { FeatureStatus } from "@/lib/types";
 import type { FeatureWithAuthor } from "@/lib/types";
