@@ -1,0 +1,52 @@
+import { getPendingFeatures, getActiveAdminFeatures } from "@/lib/db/features";
+import { getUsers } from "@/lib/db/users";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ModerationQueue } from "@/components/admin/moderation-queue";
+import { UserManagementTable } from "@/components/admin/user-management-table";
+import { CreateUserModal } from "@/components/admin/create-user-modal";
+
+export default async function AdminPage() {
+  const [pendingFeatures, activeFeatures, users] = await Promise.all([
+    getPendingFeatures(),
+    getActiveAdminFeatures(),
+    getUsers(),
+  ]);
+
+  return (
+    <div>
+      <h1 className="text-2xl font-bold mb-6 text-foreground">Admin Panel</h1>
+      <Tabs defaultValue="moderation">
+        <TabsList className="mb-6">
+          <TabsTrigger value="moderation">
+            Moderation Queue
+            {pendingFeatures.length > 0 && (
+              <span className="ml-1.5 text-xs bg-yellow-500/20 text-yellow-400 rounded-full px-1.5 py-0.5">
+                {pendingFeatures.length}
+              </span>
+            )}
+          </TabsTrigger>
+          <TabsTrigger value="users">User Management</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="moderation">
+          <ModerationQueue
+            pendingFeatures={pendingFeatures}
+            activeFeatures={activeFeatures}
+          />
+        </TabsContent>
+
+        <TabsContent value="users">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-base font-semibold text-foreground">
+                All Users ({users.length})
+              </h2>
+              <CreateUserModal />
+            </div>
+            <UserManagementTable users={users} />
+          </div>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}
