@@ -79,7 +79,11 @@ export function SubmitFeatureForm({ tags }: SubmitFeatureFormProps) {
         <Label htmlFor="productTag">Product</Label>
         <Select value={productTagId} onValueChange={(v) => setProductTagId(v ?? "")}>
           <SelectTrigger id="productTag">
-            <SelectValue placeholder="Select a product..." />
+            <SelectValue>
+              {(value: string | null) =>
+                value ? (tags.find((t) => t.id === value)?.label ?? value) : "Select a product..."
+              }
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {tags.map((tag) => (
