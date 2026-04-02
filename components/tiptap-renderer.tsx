@@ -18,7 +18,7 @@ export function TiptapRenderer({ content, className }: TiptapRendererProps) {
 
   return (
     <div
-      className={`prose prose-invert prose-sm max-w-none ${className ?? ""}`}
+      className={`prose dark:prose-invert prose-sm max-w-none ${className ?? ""}`}
       dangerouslySetInnerHTML={{ __html: html }}
     />
   );

@@ -105,7 +105,7 @@ export function TiptapEditor({ content, onUpdate, placeholder }: TiptapEditorPro
 
       <EditorContent
         editor={editor}
-        className="prose prose-invert prose-sm max-w-none [&_.tiptap]:min-h-[200px]"
+        className="prose dark:prose-invert prose-sm max-w-none [&_.tiptap]:min-h-[200px]"
       />
     </div>
   );
