@@ -5,6 +5,7 @@ export const meta = config.meta;
 export const company = config.company;
 export const currency = config.currency;
 export const seedConfig = config.seed;
+export const storeConfig = config.store;
 
 /**
  * The raw Lucide icon component from the brand config.

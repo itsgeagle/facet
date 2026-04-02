@@ -22,6 +22,12 @@ enum FeatureStatus {
   REJECTED
 }
 
+enum PurchaseStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
 model User {
   id               String           @id @default(cuid())
   email            String           @unique
@@ -34,6 +40,7 @@ model User {
   updatedAt        DateTime         @updatedAt
   featureRequests  FeatureRequest[]
   contributions    Contribution[]
+  creditPurchases  CreditPurchase[]
 }
 
 model ProductTag {
@@ -73,4 +80,19 @@ model Contribution {
   createdAt DateTime       @default(now())
   user      User           @relation(fields: [userId], references: [id])
   feature   FeatureRequest @relation(fields: [featureId], references: [id])
+}
+
+model CreditPurchase {
+  id              String         @id @default(cuid())
+  userId          String
+  user            User           @relation(fields: [userId], references: [id])
+  packageId       String
+  creditsGranted  Int
+  amountCents     Int
+  stripeSessionId  String         @unique
+  status           PurchaseStatus @default(PENDING)
+  remainingCredits Int?
+  expiresAt        DateTime?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
 }

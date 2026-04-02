@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { Plus, Shield } from "lucide-react";
 import { BrandIcon } from "@/components/brand-icon";
-import { brand } from "@/lib/brand";
+import { brand, storeConfig } from "@/lib/brand";
 import { CaratBalanceDisplay } from "@/components/carat-balance-display";
+import { BuyCreditsModal } from "@/components/buy-credits-modal";
 import { UserNav } from "@/components/user-nav";
 import { buttonVariants } from "@/components/ui/button";
 import { Role } from "@/lib/types";
@@ -13,9 +14,10 @@ import { cn } from "@/lib/utils";
 
 interface NavbarProps {
   user: User;
+  totalPurchasedBalance: number;
 }
 
-export function Navbar({ user }: NavbarProps) {
+export function Navbar({ user, totalPurchasedBalance }: NavbarProps) {
   return (
     <header className="border-b border-border bg-card sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
@@ -31,7 +33,11 @@ export function Navbar({ user }: NavbarProps) {
           <CaratBalanceDisplay
             currentBalance={user.currentBalance}
             monthlyAllowance={user.monthlyAllowance}
+            totalBalance={user.currentBalance + totalPurchasedBalance}
+            userId={user.id}
           />
+
+          {storeConfig?.enabled && <BuyCreditsModal />}
 
           {user.role === Role.ADMIN && (
             <Link

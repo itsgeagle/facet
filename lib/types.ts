@@ -63,6 +63,43 @@ export interface Contribution {
   createdAt: Date;
 }
 
+export const PurchaseStatus = {
+  PENDING: "PENDING",
+  COMPLETED: "COMPLETED",
+  FAILED: "FAILED",
+} as const;
+export type PurchaseStatus = (typeof PurchaseStatus)[keyof typeof PurchaseStatus];
+
+export interface CreditPurchase {
+  id: string;
+  userId: string;
+  packageId: string;
+  creditsGranted: number;
+  amountCents: number;
+  stripeSessionId: string;
+  status: PurchaseStatus;
+  remainingCredits: number | null;
+  expiresAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface PurchasedCreditBucket {
+  id: string;
+  creditsGranted: number;
+  remainingCredits: number;
+  expiresAt: Date;
+  purchasedAt: Date;
+}
+
+export interface BalanceBreakdown {
+  monthlyBalance: number;
+  monthlyAllowance: number;
+  nextResetDate: Date;
+  purchasedBuckets: PurchasedCreditBucket[];
+  totalBalance: number;
+}
+
 export type ActionResult<T = void> =
   | { success: true; data?: T }
   | { success: false; error: string };

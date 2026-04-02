@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth";
 import { getFeatureById } from "@/lib/db/features";
+import { getTotalPurchasedBalance } from "@/lib/db/purchase-actions";
 import { FeatureStatus } from "@/lib/types";
 import { ProductTagBadge } from "@/components/product-tag-badge";
 import { StatusBadge } from "@/components/status-badge";
@@ -25,6 +26,9 @@ export default async function FeatureDetailPage({ params }: FeatureDetailPagePro
   if (!user) redirect("/login");
   if (!feature) notFound();
 
+  const totalPurchasedBalance = await getTotalPurchasedBalance(user.id);
+  const totalBalance = user.currentBalance + totalPurchasedBalance;
+
   const fundingPercent =
     feature.caratCost && feature.caratCost > 0
       ? Math.min(100, Math.round((feature.totalFunded / feature.caratCost) * 100))
@@ -37,7 +41,7 @@ export default async function FeatureDetailPage({ params }: FeatureDetailPagePro
   const canContribute =
     feature.status === FeatureStatus.OPEN &&
     feature.authorId !== user.id &&
-    user.currentBalance > 0 &&
+    totalBalance > 0 &&
     remainingNeeded > 0;
 
   return (
@@ -111,7 +115,7 @@ export default async function FeatureDetailPage({ params }: FeatureDetailPagePro
             <ContributeModal
               featureId={feature.id}
               featureTitle={feature.title}
-              userBalance={user.currentBalance}
+              userBalance={totalBalance}
               remainingNeeded={remainingNeeded}
             />
           )}

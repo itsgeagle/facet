@@ -30,7 +30,7 @@ A feature automatically moves from Open to Committed the moment crowdfunding rea
 ## Prerequisites
 
 - Node.js 18+
-- A PostgreSQL database
+- PostgreSQL 14+ (see [Local database setup](#local-database-setup) below)
 
 ---
 
@@ -46,21 +46,30 @@ npm install
 
 ### 2. Set up environment variables
 
-Create `.env.local` in the project root:
+The project uses two env files (see `.env.example` for reference):
+
+**`.env`** — read by Prisma CLI:
 
 ```env
-# Database — use the direct connection URL (not the pooler) for Prisma
-DATABASE_URL=postgresql://postgres:your-password@db.your-project.example.com:5432/postgres?sslmode=require
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/facet
+```
+
+**`.env.local`** — read by Next.js at runtime:
+
+```env
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/facet
 
 # Auth.js — generate with: openssl rand -base64 32
 AUTH_SECRET=your-secret-here
-AUTH_URL=https://your-domain.com
+AUTH_URL=http://localhost:3000
 
-# Cron endpoint protection
+# Cron endpoint protection — any long random string
 CRON_SECRET=a-long-random-secret-string
-```
 
-> If your database password contains special characters like `@`, URL-encode them (`@` → `%40`) before putting them in `DATABASE_URL`.
+# Stripe (required only when store.enabled = true in whitelabel.ts)
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+```
 
 ### 3. Configure your whitelabel
 
@@ -113,6 +122,33 @@ There is no public sign-up. The seed script creates the first admin automaticall
 UPDATE "User" SET role = 'ADMIN' WHERE email = 'their@email.com';
 ```
 
+### Stripe webhooks
+
+The credit store uses a Stripe webhook to credit users after a successful payment.
+
+**Production setup:**
+
+1. Go to [dashboard.stripe.com/webhooks](https://dashboard.stripe.com/webhooks) and click **Add endpoint**
+2. Set the endpoint URL to `https://your-domain.com/api/stripe/webhook`
+3. Under **Select events**, add: `checkout.session.completed`
+4. Click **Add endpoint**, then reveal the **Signing secret** — that's your `STRIPE_WEBHOOK_SECRET`
+
+**Local development:**
+
+Install the [Stripe CLI](https://stripe.com/docs/stripe-cli), then run:
+
+```bash
+stripe listen --forward-to localhost:3000/api/stripe/webhook
+```
+
+It prints a `whsec_...` secret — use that as `STRIPE_WEBHOOK_SECRET` in `.env.local`. Test a payment flow with:
+
+```bash
+stripe trigger checkout.session.completed
+```
+
+> The local CLI secret is different from your production dashboard secret — use separate values for each environment.
+
 ### Monthly balance reset
 
 User balances reset to their monthly allowance on the first of each month. Call this endpoint from your scheduler:
@@ -154,6 +190,8 @@ All brand-specific values live in `config/whitelabel.ts`. The file is gitignored
 | `currency.singular` | `string` | Funding unit name, singular (e.g. `"Credit"`) |
 | `currency.plural` | `string` | Funding unit name, plural (e.g. `"Credits"`) |
 | `seed.*` | `string` | Credentials and company name for the seeded accounts |
+| `store.enabled` | `boolean` | Show/hide the Buy Credits button (requires Stripe env vars) |
+| `store.packages` | `array` | Credit packages — each has `id`, `label`, `credits`, `priceUsd`, and optional `description` |
 
 ### Product tags
 
@@ -165,10 +203,66 @@ Edit the CSS custom properties in `app/globals.css`. No rebuild needed — resta
 
 ---
 
+## Local database setup
+
+Two options — pick whichever suits your setup.
+
+### Docker (recommended)
+
+Requires [Docker Desktop](https://www.docker.com/products/docker-desktop/).
+
+```bash
+docker run --name facet-postgres \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_PASSWORD=postgres \
+  -e POSTGRES_DB=facet \
+  -p 5432:5432 \
+  -d postgres
+```
+
+To stop/start later:
+```bash
+docker stop facet-postgres
+docker start facet-postgres
+```
+
+To reset the database entirely:
+```bash
+docker rm -f facet-postgres
+# then re-run the docker run command above
+```
+
+### Homebrew (macOS)
+
+```bash
+brew install postgresql@16
+brew services start postgresql@16
+createdb facet
+```
+
+To connect and verify:
+```bash
+psql -d facet
+```
+
+To reset the database:
+```bash
+dropdb facet && createdb facet
+```
+
+### Hosted database (Supabase, Railway, etc.)
+
+Set `DATABASE_URL` to your provider's connection string in both `.env` and `.env.local`. If your provider uses connection pooling (e.g. Supabase pgbouncer), use the **direct** connection URL (non-pooler) in `.env` for Prisma CLI operations, and the pooler URL in `.env.local` for runtime.
+
+---
+
 ## Troubleshooting
 
 **Can't connect to the database (`P1001`)**
-Make sure `DATABASE_URL` uses the direct connection URL (port `5432`, not the pooler) and ends with `?sslmode=require`.
+Check that PostgreSQL is running and `DATABASE_URL` in `.env` points to the correct host and port.
+
+**`createdb: error: database "facet" already exists`**
+Run `dropdb facet` first, then `createdb facet`.
 
 ---
 

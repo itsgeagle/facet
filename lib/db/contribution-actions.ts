@@ -5,6 +5,7 @@ import { prisma } from "@/lib/db/prisma";
 import { FeatureStatus } from "@/lib/types";
 import { getSessionUser } from "@/lib/auth";
 import { contributeSchema } from "@/lib/validations/contribution";
+import { getActivePurchasedCredits } from "@/lib/db/purchase-actions";
 import type { ActionResult } from "@/lib/types";
 
 export async function contributeCarats(data: unknown): Promise<ActionResult> {
@@ -26,7 +27,12 @@ export async function contributeCarats(data: unknown): Promise<ActionResult> {
   if (feature.status !== FeatureStatus.OPEN) {
     return { success: false, error: "Feature is not open for contributions" };
   }
-  if (user.currentBalance < amount) {
+
+  const activePurchases = await getActivePurchasedCredits(user.id);
+  const totalPurchased = activePurchases.reduce((s, p) => s + (p.remainingCredits ?? 0), 0);
+  const totalSpendable = user.currentBalance + totalPurchased;
+
+  if (totalSpendable < amount) {
     return { success: false, error: "Insufficient carat balance" };
   }
 
@@ -42,22 +48,43 @@ export async function contributeCarats(data: unknown): Promise<ActionResult> {
   const willBeCommitted =
     feature.caratCost != null && newTotalFunded >= feature.caratCost;
 
-  await prisma.$transaction([
-    prisma.user.update({
+  // Build deduction plan: monthly first, then earliest-expiring purchased buckets
+  let remainingToDeduct = amount;
+  const monthlyDeduction = Math.min(remainingToDeduct, user.currentBalance);
+  remainingToDeduct -= monthlyDeduction;
+
+  const purchaseDeductions: { id: string; decrement: number }[] = [];
+  for (const bucket of activePurchases) {
+    if (remainingToDeduct <= 0) break;
+    const take = Math.min(remainingToDeduct, bucket.remainingCredits ?? 0);
+    if (take > 0) {
+      purchaseDeductions.push({ id: bucket.id, decrement: take });
+      remainingToDeduct -= take;
+    }
+  }
+
+  await prisma.$transaction(async (tx) => {
+    await tx.user.update({
       where: { id: user.id },
-      data: { currentBalance: { decrement: amount } },
-    }),
-    prisma.featureRequest.update({
+      data: { currentBalance: { decrement: monthlyDeduction } },
+    });
+    await tx.featureRequest.update({
       where: { id: featureId },
       data: {
         totalFunded: { increment: amount },
         ...(willBeCommitted ? { status: FeatureStatus.COMMITTED } : {}),
       },
-    }),
-    prisma.contribution.create({
+    });
+    await tx.contribution.create({
       data: { userId: user.id, featureId, amount },
-    }),
-  ]);
+    });
+    for (const d of purchaseDeductions) {
+      await tx.creditPurchase.update({
+        where: { id: d.id },
+        data: { remainingCredits: { decrement: d.decrement } },
+      });
+    }
+  });
 
   revalidatePath(`/dashboard/features/${featureId}`);
   revalidatePath("/dashboard");
