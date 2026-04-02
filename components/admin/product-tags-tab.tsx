@@ -427,23 +427,23 @@ export function ProductTagsTab({ initialTags, featureCounts }: ProductTagsTabPro
         <p className="text-sm text-muted-foreground py-6 text-center">No product tags yet.</p>
       ) : (
         <div className="rounded-lg border border-border overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-8" />
-                <TableHead>Label</TableHead>
-                <TableHead>Value</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Features</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              <DndContext
-                sensors={sensors}
-                collisionDetection={closestCenter}
-                onDragEnd={handleDragEnd}
-              >
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-8" />
+                  <TableHead>Label</TableHead>
+                  <TableHead>Value</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Features</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 <SortableContext
                   items={tags.map((t) => t.id)}
                   strategy={verticalListSortingStrategy}
@@ -458,9 +458,9 @@ export function ProductTagsTab({ initialTags, featureCounts }: ProductTagsTabPro
                     />
                   ))}
                 </SortableContext>
-              </DndContext>
-            </TableBody>
-          </Table>
+              </TableBody>
+            </Table>
+          </DndContext>
         </div>
       )}
     </div>
