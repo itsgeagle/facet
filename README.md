@@ -4,6 +4,18 @@
 
 ---
 
+## Screenshots
+
+| Feature board | Feature detail |
+|:---:|:---:|
+| ![Feature board](screenshots/02-feature-board.png) | ![Feature detail](screenshots/03-feature-detail.png) |
+
+| Submit a feature | Admin panel |
+|:---:|:---:|
+| ![Submit feature](screenshots/04-submit-feature.png) | ![Admin panel](screenshots/05-admin-panel.png) |
+
+---
+
 ## How it works
 
 | Role | What they can do |
